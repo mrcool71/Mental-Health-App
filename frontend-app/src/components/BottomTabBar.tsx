@@ -18,8 +18,8 @@ const ICONS: Record<string, string> = {
   Home: "home",
   Wellbeing: "favorite",
   History: "history",
-  Profile: "person",
   Resources: "menu-book",
+  Profile: "person",
 };
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
@@ -65,9 +65,7 @@ function TabBarItem({
     >
       <View>
         <MaterialIcons name={iconName as any} size={24} color={color} />
-        {routeName === "History" && showBadge ? (
-          <View style={styles.badgeDot} />
-        ) : null}
+        {routeName === "History" && showBadge ? <View style={styles.badgeDot} /> : null}
       </View>
       <Text style={[styles.label, { color }]}>{label}</Text>
     </AnimatedPressable>

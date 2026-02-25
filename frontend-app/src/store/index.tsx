@@ -22,6 +22,8 @@ function reducer(state: AppState, action: AppAction): AppState {
       const score = calculateScore(history);
       return { ...state, history, score };
     }
+    case "SET_ONBOARDED":
+      return { ...state, hasOnboarded: true };
     case "RESET":
       return initialState;
     default:
@@ -40,7 +42,18 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({
     dispatch({ type: "ADD_ENTRY", payload: entry });
   };
 
-  const value = useMemo(() => ({ state, addEntry }), [state]);
+  const setOnboarded = () => {
+    dispatch({ type: "SET_ONBOARDED" });
+  };
+
+  const reset = () => {
+    dispatch({ type: "RESET" });
+  };
+
+  const value = useMemo(
+    () => ({ state, addEntry, setOnboarded, reset }),
+    [state],
+  );
 
   return (
     <StoreContext.Provider value={value}>{children}</StoreContext.Provider>

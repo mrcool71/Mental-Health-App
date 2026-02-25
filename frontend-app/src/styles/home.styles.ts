@@ -1,150 +1,157 @@
-import { StyleSheet, Platform } from "react-native";
+import { StyleSheet } from "react-native";
 import theme from "../theme/theme";
 
 export default StyleSheet.create({
-  header: {
+  screen: {
+    flex: 1,
+    backgroundColor: theme.colors.background,
+  },
+  content: {
+    paddingHorizontal: theme.spacing.lg,
+    paddingTop: theme.spacing.lg,
+    paddingBottom: theme.spacing.xl * 2,
+    gap: theme.spacing.md,
+  },
+
+  // Greeting section
+  greetingRow: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    marginBottom: theme.spacing.md,
+    gap: theme.spacing.md,
   },
-  headerLeft: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: theme.spacing.sm,
+  greetingTextWrap: {
+    flex: 1,
+    gap: theme.spacing.xs,
   },
-  appAvatar: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    backgroundColor: theme.colors.backgroundAlt,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  appAvatarText: {
-    fontSize: 18,
-  },
-  appTitle: {
-    fontFamily: theme.typography.fontFamilyDisplay,
+  greetingTitle: {
     fontSize: theme.typography.sizes.h1,
     color: theme.colors.textPrimary,
-  },
-  hero: {
-    fontSize: 32, // or theme.typography.sizes.h1 + 4
     fontFamily: theme.typography.fontFamilyDisplay,
-    color: theme.colors.plum,
-    // fontWeight: "700",
-    marginBottom: theme.spacing.md,
-    lineHeight: 40,
+    fontWeight: "700",
+    lineHeight: 36,
   },
-  headerRight: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: theme.spacing.sm,
+  greetingSubtitle: {
+    color: theme.colors.textSecondary,
   },
-  iconButton: {
-    minWidth: theme.touch.minSize,
-    minHeight: theme.touch.minSize,
-    borderRadius: theme.radii.pill,
-    backgroundColor: theme.colors.white,
+  mascotCircle: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: theme.colors.surface,
     alignItems: "center",
     justifyContent: "center",
-    borderWidth: 1,
-    borderColor: theme.colors.backgroundAlt,
-    ...Platform.select({
-      ios: {
-        shadowColor: theme.colors.black,
-        shadowOpacity: 0.06,
-        shadowOffset: { width: 0, height: 4 },
-        shadowRadius: 10,
-      },
-      android: {
-        elevation: 2,
-      },
-      default: {},
-    }),
+    shadowColor: theme.colors.shadow,
+    shadowOpacity: 1,
+    shadowOffset: { width: 0, height: 4 },
+    shadowRadius: 10,
+    elevation: 2,
+  },
+  mascotEmoji: {
+    fontSize: 24,
   },
 
-  card: {
-    backgroundColor: theme.colors.white,
+  // Quote card
+  quoteCard: {
+    backgroundColor: theme.colors.quoteCard,
+    borderRadius: theme.radii.lg,
+    padding: theme.spacing.lg,
+    gap: theme.spacing.sm,
+  },
+  quoteText: {
+    fontSize: theme.typography.sizes.body,
+    color: theme.colors.textPrimary,
+    fontFamily: theme.typography.fontFamilyPrimary,
+    fontStyle: "italic",
+    textAlign: "center",
+    lineHeight: 24,
+  },
+  quoteDash: {
+    width: 32,
+    height: 3,
+    borderRadius: 2,
+    backgroundColor: theme.colors.primary,
+    alignSelf: "center",
+    marginTop: theme.spacing.sm,
+  },
+
+  // Quick check-in card
+  checkinCard: {
+    backgroundColor: theme.colors.checkinCard,
     borderRadius: theme.radii.lg,
     padding: theme.spacing.lg,
     gap: theme.spacing.md,
-    ...Platform.select({
-      ios: {
-        shadowColor: theme.colors.black,
-        shadowOpacity: 0.07,
-        shadowOffset: { width: 0, height: 6 },
-        shadowRadius: 14,
-      },
-      android: {
-        elevation: 2,
-      },
-      default: {},
-    }),
+  },
+  checkinTitle: {
+    fontSize: theme.typography.sizes.h2,
+    fontFamily: theme.typography.fontFamilyDisplay,
+    color: theme.colors.white,
+    fontWeight: "700",
+    lineHeight: 30,
+  },
+  checkinSubtitle: {
+    color: theme.colors.white,
+    opacity: 0.85,
+    lineHeight: 22,
+  },
+  catStrip: {
+    height: 80,
+    borderRadius: theme.radii.md,
+    backgroundColor: theme.colors.accent,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  catStripRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: theme.spacing.md,
+  },
+  catStripEmoji: {
+    fontSize: 30,
+  },
+  checkinButton: {
+    alignSelf: "center",
+    borderRadius: theme.radii.pill,
+    backgroundColor: theme.colors.white,
+    minHeight: 46,
+    paddingHorizontal: theme.spacing.xl,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  checkinButtonText: {
+    color: theme.colors.primary,
+    fontSize: theme.typography.sizes.body,
+    fontFamily: theme.typography.fontFamilyDisplay,
+    fontWeight: "600",
   },
 
-  mainCardTopRow: {
+  // Latest entry row
+  latestRow: {
+    backgroundColor: theme.colors.surface,
+    borderRadius: theme.radii.md,
+    padding: theme.spacing.md,
     flexDirection: "row",
-    alignItems: "center",
     justifyContent: "space-between",
-  },
-  smallLabel: {
-    fontFamily: theme.typography.fontFamilyPrimary,
-    fontSize: theme.typography.sizes.small,
-    color: theme.colors.textSecondary,
-  },
-  moodRow: {
-    flexDirection: "row",
     alignItems: "center",
+    gap: theme.spacing.md,
+  },
+  latestMeta: {
+    alignItems: "flex-end",
     gap: theme.spacing.xs,
   },
-  moodEmoji: {
-    fontSize: 18,
-  },
-  moodText: {
+  latestLabel: {
+    fontSize: theme.typography.sizes.small,
+    color: theme.colors.muted,
     fontFamily: theme.typography.fontFamilyPrimary,
-    fontSize: theme.typography.sizes.body,
+    fontWeight: "600",
+    textTransform: "uppercase",
+    letterSpacing: 0.8,
+  },
+  latestTime: {
     color: theme.colors.textPrimary,
-    textTransform: "capitalize",
-  },
-
-  center: {
-    alignItems: "center",
-    justifyContent: "center",
-  },
-
-  ctaContainer: {
-    position: "absolute",
-    left: theme.spacing.lg,
-    right: theme.spacing.lg,
-  },
-  ctaButton: {
-    minHeight: theme.touch.minSize,
-    borderRadius: theme.radii.pill,
-    backgroundColor: theme.colors.primary,
-    paddingVertical: theme.spacing.md,
-    paddingHorizontal: theme.spacing.lg,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: theme.spacing.sm,
-    ...Platform.select({
-      ios: {
-        shadowColor: theme.colors.black,
-        shadowOpacity: 0.12,
-        shadowOffset: { width: 0, height: 10 },
-        shadowRadius: 16,
-      },
-      android: {
-        elevation: 6,
-      },
-      default: {},
-    }),
-  },
-  ctaText: {
-    fontFamily: theme.typography.fontFamilyDisplay,
-    fontSize: theme.typography.sizes.h3,
-    color: theme.colors.white,
+    fontSize: theme.typography.sizes.body,
+    fontFamily: theme.typography.fontFamilyPrimary,
+    fontWeight: "600",
   },
 });

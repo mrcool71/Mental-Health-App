@@ -1,53 +1,118 @@
-import React, { useMemo } from "react";
+import React, { useMemo, useState } from "react";
 import {
+  ScrollView,
   SectionList,
+  StyleSheet,
   Text,
+  TouchableOpacity,
   View,
   type SectionListData,
   type SectionListRenderItemInfo,
 } from "react-native";
-import globalStyles from "../styles/global.styles";
-import screenStyles from "../styles/screen.styles";
+import { MaterialIcons } from "@expo/vector-icons";
 import MoodBadge from "../components/MoodBadge";
 import { useStore } from "../store";
-import { MoodEntry } from "../types/models";
+import globalStyles from "../styles/global.styles";
+import screenStyles from "../styles/screen.styles";
+import theme from "../theme/theme";
+import { EnergyLevel, Mood, MoodEntry } from "../types/models";
 import { BottomTabScreenProps } from "../types/navigation";
-import type { HistorySection } from "../types/screens";
-import { SCREEN_TITLES } from "../constants/screens";
+import { HistorySection } from "../types/screens";
+
+const FILTER_OPTIONS: Array<{ label: string; value: Mood | "all" }> = [
+  { label: "All", value: "all" },
+  { label: "Happy", value: "happy" },
+  { label: "Good", value: "good" },
+  { label: "Okay", value: "okay" },
+  { label: "Sad", value: "sad" },
+];
+
+const ENERGY_META: Record<EnergyLevel, { emoji: string; label: string }> = {
+  high: { emoji: "⚡", label: "High Energy" },
+  medium: { emoji: "✨", label: "Medium" },
+  low: { emoji: "🌙", label: "Low Energy" },
+};
+
+const formatTime = (timestamp: number): string =>
+  new Date(timestamp).toLocaleTimeString([], {
+    hour: "numeric",
+    minute: "2-digit",
+  });
 
 const HistoryScreen: React.FC<BottomTabScreenProps<"History">> = () => {
   const { state } = useStore();
+  const [filter, setFilter] = useState<Mood | "all">("all");
 
-  const sections = useMemo(() => {
+  const filteredHistory = useMemo<MoodEntry[]>(() => {
+    if (filter === "all") {
+      return state.history;
+    }
+    return state.history.filter((entry) => entry.mood === filter);
+  }, [filter, state.history]);
+
+  const sections = useMemo<HistorySection[]>(() => {
     const grouped: Record<string, MoodEntry[]> = {};
-    state.history.forEach((entry) => {
+
+    filteredHistory.forEach((entry) => {
       const dateKey = new Date(entry.timestamp).toDateString();
-      grouped[dateKey] = grouped[dateKey]
-        ? [...grouped[dateKey], entry]
-        : [entry];
+      if (!grouped[dateKey]) {
+        grouped[dateKey] = [];
+      }
+      grouped[dateKey].push(entry);
     });
+
     return Object.entries(grouped).map(([title, data]) => ({ title, data }));
-  }, [state.history]);
+  }, [filteredHistory]);
 
   return (
-    <View
-      style={globalStyles.screen}
-      accessible
-      accessibilityLabel="History screen"
-    >
-      <Text style={globalStyles.heading}>{SCREEN_TITLES.history}</Text>
+    <View style={globalStyles.screen} accessibilityLabel="History screen">
+      <Text style={globalStyles.heading}>History</Text>
+
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        contentContainerStyle={styles.filterTabs}
+        accessibilityLabel="History mood filters"
+      >
+        {FILTER_OPTIONS.map((item) => {
+          const isActive = filter === item.value;
+          return (
+            <TouchableOpacity
+              key={item.value}
+              accessibilityRole="button"
+              accessibilityLabel={`Filter ${item.label}`}
+              style={[
+                styles.filterPill,
+                isActive ? styles.filterPillActive : styles.filterPillInactive,
+              ]}
+              onPress={() => setFilter(item.value)}
+            >
+              <Text
+                style={[
+                  styles.filterPillText,
+                  isActive
+                    ? styles.filterPillTextActive
+                    : styles.filterPillTextInactive,
+                ]}
+              >
+                {item.label}
+              </Text>
+            </TouchableOpacity>
+          );
+        })}
+      </ScrollView>
+
       <SectionList<MoodEntry, HistorySection>
-        style={globalStyles.screen}
-        contentContainerStyle={screenStyles.content}
+        style={styles.list}
+        contentContainerStyle={styles.listContent}
         sections={sections}
         keyExtractor={(item: MoodEntry) => item.id}
-        accessible
-        accessibilityLabel="History list"
+        showsVerticalScrollIndicator={false}
         ListEmptyComponent={() => (
           <View style={screenStyles.section}>
-            <Text style={globalStyles.subheading}>{"No history yet"}</Text>
+            <Text style={globalStyles.subheading}>No history yet</Text>
             <Text style={globalStyles.body}>
-              {"Complete a quick check to start your timeline."}
+              Complete a quick check to start your timeline.
             </Text>
           </View>
         )}
@@ -56,8 +121,13 @@ const HistoryScreen: React.FC<BottomTabScreenProps<"History">> = () => {
         }: {
           section: SectionListData<MoodEntry, HistorySection>;
         }) => (
-          <View style={screenStyles.section}>
-            <Text style={globalStyles.subheading}>{section.title}</Text>
+          <View style={styles.sectionHeaderRow}>
+            <MaterialIcons
+              name="event"
+              size={18}
+              color={theme.colors.textSecondary}
+            />
+            <Text style={styles.sectionHeaderText}>{section.title}</Text>
           </View>
         )}
         renderItem={({
@@ -65,20 +135,94 @@ const HistoryScreen: React.FC<BottomTabScreenProps<"History">> = () => {
         }: SectionListRenderItemInfo<MoodEntry, HistorySection>) => (
           <View
             style={screenStyles.listItem}
-            accessibilityLabel={`Mood ${item.mood}`}
+            accessibilityLabel={`Mood ${item.mood} at ${formatTime(item.timestamp)}`}
           >
             <MoodBadge mood={item.mood} label={item.mood} />
-            <Text style={screenStyles.listMeta}>
-              {new Date(item.timestamp).toLocaleTimeString([], {
-                hour: "2-digit",
-                minute: "2-digit",
-              })}
-            </Text>
+
+            <View style={styles.itemMetaWrap}>
+              <Text style={screenStyles.listMeta}>{formatTime(item.timestamp)}</Text>
+              {item.energy ? (
+                <View style={styles.energyPill}>
+                  <Text style={styles.energyPillText}>
+                    {ENERGY_META[item.energy].emoji} {ENERGY_META[item.energy].label}
+                  </Text>
+                </View>
+              ) : null}
+            </View>
           </View>
         )}
       />
     </View>
   );
 };
+
+const styles = StyleSheet.create({
+  filterTabs: {
+    gap: theme.spacing.sm,
+    paddingVertical: theme.spacing.md,
+  },
+  filterPill: {
+    borderRadius: theme.radii.pill,
+    paddingHorizontal: theme.spacing.md,
+    paddingVertical: theme.spacing.sm,
+    borderWidth: 1,
+  },
+  filterPillActive: {
+    backgroundColor: theme.colors.primary,
+    borderColor: theme.colors.primary,
+  },
+  filterPillInactive: {
+    backgroundColor: theme.colors.surface,
+    borderColor: theme.colors.backgroundAlt,
+  },
+  filterPillText: {
+    fontSize: theme.typography.sizes.body,
+    fontFamily: theme.typography.fontFamilyPrimary,
+    fontWeight: "600",
+  },
+  filterPillTextActive: {
+    color: theme.colors.white,
+  },
+  filterPillTextInactive: {
+    color: theme.colors.muted,
+  },
+  list: {
+    flex: 1,
+  },
+  listContent: {
+    paddingBottom: theme.spacing.xl,
+    gap: theme.spacing.sm,
+  },
+  sectionHeaderRow: {
+    marginTop: theme.spacing.lg,
+    marginBottom: theme.spacing.sm,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: theme.spacing.xs,
+  },
+  sectionHeaderText: {
+    color: theme.colors.textSecondary,
+    fontSize: theme.typography.sizes.small,
+    fontFamily: theme.typography.fontFamilyPrimary,
+    fontWeight: "600",
+    textTransform: "uppercase",
+    letterSpacing: 0.8,
+  },
+  itemMetaWrap: {
+    alignItems: "flex-end",
+    gap: theme.spacing.xs,
+  },
+  energyPill: {
+    backgroundColor: theme.colors.backgroundAlt,
+    borderRadius: theme.radii.pill,
+    paddingHorizontal: theme.spacing.xs,
+    paddingVertical: 2,
+  },
+  energyPillText: {
+    color: theme.colors.textSecondary,
+    fontSize: theme.typography.sizes.small,
+    fontFamily: theme.typography.fontFamilyPrimary,
+  },
+});
 
 export default HistoryScreen;

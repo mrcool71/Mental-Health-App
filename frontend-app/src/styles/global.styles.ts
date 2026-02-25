@@ -33,7 +33,29 @@ export default StyleSheet.create({
   body: {
     fontSize: theme.typography.sizes.body,
     fontFamily: theme.typography.fontFamilyPrimary,
+    color: theme.colors.textSecondary,
+  },
+  sectionHeader: {
+    fontSize: theme.typography.sizes.small,
     color: theme.colors.muted,
+    fontWeight: "600",
+    letterSpacing: 1,
+    textTransform: "uppercase",
+    marginTop: theme.spacing.lg,
+    marginBottom: theme.spacing.sm,
+  },
+  pillButton: {
+    borderRadius: theme.radii.pill,
+    paddingVertical: theme.spacing.sm,
+    paddingHorizontal: theme.spacing.lg,
+    backgroundColor: theme.colors.primary,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  pillButtonText: {
+    color: theme.colors.white,
+    fontWeight: "600",
+    fontSize: theme.typography.sizes.body,
   },
   row: {
     flexDirection: "row",

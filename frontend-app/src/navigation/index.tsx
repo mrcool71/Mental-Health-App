@@ -1,40 +1,46 @@
-import React from "react";
-import { View } from "react-native";
-import { NavigationContainer } from "@react-navigation/native";
+import React, { useRef, useState } from "react";
+import { StyleSheet, View } from "react-native";
+import {
+  NavigationContainer,
+  type NavigationContainerRef,
+} from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import { useNavigation } from "@react-navigation/native";
-import QuickCheckScreen from "../screens/QuickCheckScreen";
 import BottomTabs from "./BottomTabs";
 import Header from "../components/Header";
+import QuickCheckScreen from "../screens/QuickCheckScreen";
+import OnboardingScreen from "../screens/OnboardingScreen";
 import { RootStackParamList } from "../types/navigation";
-import {
-  NAV_STACK_INITIAL_ROUTE,
-  NAV_STACK_SCREEN_OPTIONS,
-} from "../constants/navigation";
+import { NAV_STACK_SCREEN_OPTIONS } from "../constants/navigation";
+import { useStore } from "../store";
 import theme from "../theme/theme";
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
-// Main app navigator wrapper that includes the top header and bottom tabs
-function NavigatorContent() {
-  const navigation = useNavigation();
+type NavigatorContentProps = {
+  currentRoute: string;
+  navRef: React.RefObject<NavigationContainerRef<RootStackParamList>>;
+};
 
+function NavigatorContent({ currentRoute, navRef }: NavigatorContentProps) {
+  const { state } = useStore();
   return (
-    <View style={{ flex: 1, backgroundColor: theme.colors.background }}>
-      <Header
-        badgeCount={3}
-        onPressProfile={() => {
-          // @ts-ignore - navigation typing
-          navigation.navigate("Tabs", { screen: "Profile" });
-        }}
-        onPressNotifications={() => {
-          console.log("Notifications pressed");
-        }}
-      />
+    <View style={styles.container}>
+      {currentRoute === "Onboarding" ? null : (
+        <Header
+          badgeCount={3}
+          onPressProfile={() => {
+            navRef.current?.navigate("Tabs", { screen: "Profile" });
+          }}
+          onPressNotifications={() => {
+            console.log("Notifications pressed");
+          }}
+        />
+      )}
       <Stack.Navigator
-        initialRouteName={NAV_STACK_INITIAL_ROUTE}
+        initialRouteName={state.hasOnboarded ? "Tabs" : "Onboarding"}
         screenOptions={NAV_STACK_SCREEN_OPTIONS}
       >
+        <Stack.Screen name="Onboarding" component={OnboardingScreen} />
         <Stack.Screen name="Tabs" component={BottomTabs} />
         <Stack.Screen name="QuickCheck" component={QuickCheckScreen} />
       </Stack.Navigator>
@@ -42,11 +48,33 @@ function NavigatorContent() {
   );
 }
 
-// Navigation stack; keep options minimal for the demo.
-const AppNavigator: React.FC = () => (
-  <NavigationContainer>
-    <NavigatorContent />
-  </NavigationContainer>
-);
+const AppNavigator: React.FC = () => {
+  const [currentRoute, setCurrentRoute] = useState<string>("");
+  const navRef = useRef<NavigationContainerRef<RootStackParamList>>(null);
+
+  const handleStateChange = () => {
+    const route = navRef.current?.getCurrentRoute();
+    if (route?.name) {
+      setCurrentRoute(route.name);
+    }
+  };
+
+  return (
+    <NavigationContainer
+      ref={navRef}
+      onReady={handleStateChange}
+      onStateChange={handleStateChange}
+    >
+      <NavigatorContent currentRoute={currentRoute} navRef={navRef} />
+    </NavigationContainer>
+  );
+};
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: theme.colors.background,
+  },
+});
 
 export default AppNavigator;

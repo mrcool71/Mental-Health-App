@@ -2,7 +2,6 @@ import React, { useMemo, useState } from "react";
 import {
   ScrollView,
   SectionList,
-  StyleSheet,
   Text,
   TouchableOpacity,
   View,
@@ -11,33 +10,16 @@ import {
 } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 import MoodBadge from "../components/MoodBadge";
+import { HISTORY_FILTER_OPTIONS, ENERGY_META } from "../constants/history";
 import { useStore } from "../store";
 import globalStyles from "../styles/global.styles";
+import styles from "../styles/history.styles";
 import screenStyles from "../styles/screen.styles";
 import theme from "../theme/theme";
-import { EnergyLevel, Mood, MoodEntry } from "../types/models";
+import { Mood, MoodEntry } from "../types/models";
 import { BottomTabScreenProps } from "../types/navigation";
 import { HistorySection } from "../types/screens";
-
-const FILTER_OPTIONS: Array<{ label: string; value: Mood | "all" }> = [
-  { label: "All", value: "all" },
-  { label: "Happy", value: "happy" },
-  { label: "Good", value: "good" },
-  { label: "Okay", value: "okay" },
-  { label: "Sad", value: "sad" },
-];
-
-const ENERGY_META: Record<EnergyLevel, { emoji: string; label: string }> = {
-  high: { emoji: "⚡", label: "High Energy" },
-  medium: { emoji: "✨", label: "Medium" },
-  low: { emoji: "🌙", label: "Low Energy" },
-};
-
-const formatTime = (timestamp: number): string =>
-  new Date(timestamp).toLocaleTimeString([], {
-    hour: "numeric",
-    minute: "2-digit",
-  });
+import { formatTime } from "../utilities";
 
 const HistoryScreen: React.FC<BottomTabScreenProps<"History">> = () => {
   const { state } = useStore();
@@ -74,7 +56,7 @@ const HistoryScreen: React.FC<BottomTabScreenProps<"History">> = () => {
         contentContainerStyle={styles.filterTabs}
         accessibilityLabel="History mood filters"
       >
-        {FILTER_OPTIONS.map((item) => {
+        {HISTORY_FILTER_OPTIONS.map((item) => {
           const isActive = filter === item.value;
           return (
             <TouchableOpacity
@@ -140,11 +122,14 @@ const HistoryScreen: React.FC<BottomTabScreenProps<"History">> = () => {
             <MoodBadge mood={item.mood} label={item.mood} />
 
             <View style={styles.itemMetaWrap}>
-              <Text style={screenStyles.listMeta}>{formatTime(item.timestamp)}</Text>
+              <Text style={screenStyles.listMeta}>
+                {formatTime(item.timestamp)}
+              </Text>
               {item.energy ? (
                 <View style={styles.energyPill}>
                   <Text style={styles.energyPillText}>
-                    {ENERGY_META[item.energy].emoji} {ENERGY_META[item.energy].label}
+                    {ENERGY_META[item.energy].emoji}{" "}
+                    {ENERGY_META[item.energy].label}
                   </Text>
                 </View>
               ) : null}
@@ -155,74 +140,5 @@ const HistoryScreen: React.FC<BottomTabScreenProps<"History">> = () => {
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  filterTabs: {
-    gap: theme.spacing.sm,
-    paddingVertical: theme.spacing.md,
-  },
-  filterPill: {
-    borderRadius: theme.radii.pill,
-    paddingHorizontal: theme.spacing.md,
-    paddingVertical: theme.spacing.sm,
-    borderWidth: 1,
-  },
-  filterPillActive: {
-    backgroundColor: theme.colors.primary,
-    borderColor: theme.colors.primary,
-  },
-  filterPillInactive: {
-    backgroundColor: theme.colors.surface,
-    borderColor: theme.colors.backgroundAlt,
-  },
-  filterPillText: {
-    fontSize: theme.typography.sizes.body,
-    fontFamily: theme.typography.fontFamilyPrimary,
-    fontWeight: "600",
-  },
-  filterPillTextActive: {
-    color: theme.colors.white,
-  },
-  filterPillTextInactive: {
-    color: theme.colors.muted,
-  },
-  list: {
-    flex: 1,
-  },
-  listContent: {
-    paddingBottom: theme.spacing.xl,
-    gap: theme.spacing.sm,
-  },
-  sectionHeaderRow: {
-    marginTop: theme.spacing.lg,
-    marginBottom: theme.spacing.sm,
-    flexDirection: "row",
-    alignItems: "center",
-    gap: theme.spacing.xs,
-  },
-  sectionHeaderText: {
-    color: theme.colors.textSecondary,
-    fontSize: theme.typography.sizes.small,
-    fontFamily: theme.typography.fontFamilyPrimary,
-    fontWeight: "600",
-    textTransform: "uppercase",
-    letterSpacing: 0.8,
-  },
-  itemMetaWrap: {
-    alignItems: "flex-end",
-    gap: theme.spacing.xs,
-  },
-  energyPill: {
-    backgroundColor: theme.colors.backgroundAlt,
-    borderRadius: theme.radii.pill,
-    paddingHorizontal: theme.spacing.xs,
-    paddingVertical: 2,
-  },
-  energyPillText: {
-    color: theme.colors.textSecondary,
-    fontSize: theme.typography.sizes.small,
-    fontFamily: theme.typography.fontFamilyPrimary,
-  },
-});
 
 export default HistoryScreen;

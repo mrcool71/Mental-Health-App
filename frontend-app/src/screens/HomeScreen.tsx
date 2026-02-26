@@ -6,19 +6,7 @@ import { useStore } from "../store";
 import globalStyles from "../styles/global.styles";
 import homeStyles from "../styles/home.styles";
 import { BottomTabScreenProps } from "../types/navigation";
-
-const getGreetingByHour = (): string => {
-  const hour = new Date().getHours();
-  if (hour >= 5 && hour <= 11) return "morning";
-  if (hour >= 12 && hour <= 17) return "afternoon";
-  return "evening";
-};
-
-const formatTime = (timestamp: number): string =>
-  new Date(timestamp).toLocaleTimeString([], {
-    hour: "numeric",
-    minute: "2-digit",
-  });
+import { getGreetingByHour, formatTime } from "../utilities";
 
 const HomeScreen: React.FC<BottomTabScreenProps<"Home">> = ({ navigation }) => {
   const { state } = useStore();
@@ -59,7 +47,9 @@ const HomeScreen: React.FC<BottomTabScreenProps<"Home">> = ({ navigation }) => {
       </View>
 
       <View style={homeStyles.checkinCard}>
-        <Text style={homeStyles.checkinTitle}>{"Ready for a quick\ncheck-in? 🐾"}</Text>
+        <Text style={homeStyles.checkinTitle}>
+          {"Ready for a quick\ncheck-in? 🐾"}
+        </Text>
         <Text style={[globalStyles.body, homeStyles.checkinSubtitle]}>
           Take 30 seconds to log how you're feeling right now
         </Text>
@@ -90,7 +80,9 @@ const HomeScreen: React.FC<BottomTabScreenProps<"Home">> = ({ navigation }) => {
           </View>
 
           <View style={homeStyles.latestMeta}>
-            <Text style={homeStyles.latestTime}>{formatTime(latestEntry.timestamp)}</Text>
+            <Text style={homeStyles.latestTime}>
+              {formatTime(latestEntry.timestamp)}
+            </Text>
           </View>
         </View>
       ) : null}

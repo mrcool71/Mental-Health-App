@@ -1,25 +1,15 @@
 import React, { useMemo } from "react";
-import { ScrollView, StyleSheet, Text, View } from "react-native";
+import { ScrollView, Text, View } from "react-native";
 import ProgressRing from "../components/ProgressRing";
 import { WELLBEING_MAX_SCORE } from "../constants/metrics";
 import { moodScores } from "../constants/store";
 import { useStore } from "../store";
 import globalStyles from "../styles/global.styles";
+import styles from "../styles/wellbeing.styles";
 import theme from "../theme/theme";
 import { BottomTabScreenProps } from "../types/navigation";
-
-type BreakdownStat = {
-  label: string;
-  value: number;
-  color: string;
-};
-
-const getScoreLabel = (score: number): string => {
-  if (score >= 90) return "Excellent — thriving!";
-  if (score >= 70) return "Good — keep it up!";
-  if (score >= 50) return "Okay — you're doing fine.";
-  return "Low — be gentle with yourself.";
-};
+import type { BreakdownStat } from "../types/wellbeing";
+import { getScoreLabel } from "../utilities";
 
 const WellbeingScreen: React.FC<BottomTabScreenProps<"Wellbeing">> = () => {
   const { state } = useStore();
@@ -33,7 +23,10 @@ const WellbeingScreen: React.FC<BottomTabScreenProps<"Wellbeing">> = () => {
     return Math.round(total / state.history.length);
   }, [state.history, state.score]);
 
-  const scoreLabel = useMemo<string>(() => getScoreLabel(state.score), [state.score]);
+  const scoreLabel = useMemo<string>(
+    () => getScoreLabel(state.score),
+    [state.score],
+  );
 
   const stats = useMemo<BreakdownStat[]>(
     () => [
@@ -133,97 +126,5 @@ const WellbeingScreen: React.FC<BottomTabScreenProps<"Wellbeing">> = () => {
     </ScrollView>
   );
 };
-
-const styles = StyleSheet.create({
-  screen: {
-    flex: 1,
-    backgroundColor: theme.colors.background,
-  },
-  content: {
-    paddingHorizontal: theme.spacing.lg,
-    paddingTop: theme.spacing.lg,
-    paddingBottom: theme.spacing.xl * 2,
-    gap: theme.spacing.md,
-  },
-  titleRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    gap: theme.spacing.md,
-  },
-  titleMascot: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    backgroundColor: theme.colors.cardSoft,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  titleMascotText: {
-    fontSize: 24,
-  },
-  ringCard: {
-    backgroundColor: theme.colors.surface,
-    borderRadius: theme.radii.lg,
-    padding: theme.spacing.lg,
-    alignItems: "center",
-    gap: theme.spacing.sm,
-  },
-  scoreLabel: {
-    color: theme.colors.textPrimary,
-    fontFamily: theme.typography.fontFamilyDisplay,
-    fontSize: theme.typography.sizes.h3,
-    fontWeight: "700",
-    textAlign: "center",
-  },
-  statsGrid: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    gap: theme.spacing.sm,
-  },
-  statCard: {
-    width: "48.5%",
-    backgroundColor: theme.colors.surface,
-    borderRadius: theme.radii.md,
-    padding: theme.spacing.md,
-    gap: theme.spacing.xs,
-  },
-  statLabel: {
-    color: theme.colors.textSecondary,
-    fontFamily: theme.typography.fontFamilyPrimary,
-    fontSize: theme.typography.sizes.small,
-    fontWeight: "600",
-    textTransform: "uppercase",
-    letterSpacing: 0.8,
-  },
-  statValue: {
-    color: theme.colors.textPrimary,
-    fontFamily: theme.typography.fontFamilyDisplay,
-    fontSize: theme.typography.sizes.h3,
-    fontWeight: "700",
-  },
-  statTrack: {
-    height: 4,
-    borderRadius: 2,
-    backgroundColor: theme.colors.backgroundAlt,
-    overflow: "hidden",
-  },
-  statFill: {
-    height: 4,
-    borderRadius: 2,
-  },
-  tipsCard: {
-    backgroundColor: theme.colors.surface,
-    borderRadius: theme.radii.md,
-    padding: theme.spacing.md,
-    gap: theme.spacing.sm,
-  },
-  tipText: {
-    color: theme.colors.textSecondary,
-    fontSize: theme.typography.sizes.body,
-    fontFamily: theme.typography.fontFamilyPrimary,
-    lineHeight: 22,
-  },
-});
 
 export default WellbeingScreen;

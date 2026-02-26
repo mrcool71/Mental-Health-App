@@ -1,5 +1,5 @@
 import React, { useRef, useState } from "react";
-import { StyleSheet, View } from "react-native";
+import { View } from "react-native";
 import {
   NavigationContainer,
   type NavigationContainerRef,
@@ -12,19 +12,19 @@ import OnboardingScreen from "../screens/OnboardingScreen";
 import { RootStackParamList } from "../types/navigation";
 import { NAV_STACK_SCREEN_OPTIONS } from "../constants/navigation";
 import { useStore } from "../store";
-import theme from "../theme/theme";
+import navigationStyles from "../styles/navigation.styles";
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
 type NavigatorContentProps = {
   currentRoute: string;
-  navRef: React.RefObject<NavigationContainerRef<RootStackParamList>>;
+  navRef: React.RefObject<NavigationContainerRef<RootStackParamList> | null>;
 };
 
 function NavigatorContent({ currentRoute, navRef }: NavigatorContentProps) {
   const { state } = useStore();
   return (
-    <View style={styles.container}>
+    <View style={navigationStyles.container}>
       {currentRoute === "Onboarding" ? null : (
         <Header
           badgeCount={3}
@@ -69,12 +69,5 @@ const AppNavigator: React.FC = () => {
     </NavigationContainer>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: theme.colors.background,
-  },
-});
 
 export default AppNavigator;

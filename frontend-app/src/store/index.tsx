@@ -6,14 +6,9 @@ import React, {
   ReactNode,
 } from "react";
 import { AppAction, AppState, MoodEntry } from "../types/models";
-import { initialState, moodScores } from "../constants/store";
+import { initialState } from "../constants/store";
 import type { StoreContextProps } from "../types/store";
-
-function calculateScore(entries: MoodEntry[]): number {
-  if (!entries.length) return initialState.score;
-  const total = entries.reduce((sum, entry) => sum + moodScores[entry.mood], 0);
-  return Math.round(total / entries.length);
-}
+import { calculateScore } from "../utilities";
 
 function reducer(state: AppState, action: AppAction): AppState {
   switch (action.type) {

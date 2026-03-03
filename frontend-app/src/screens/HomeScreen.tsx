@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import React, { useMemo, useState } from "react";
 import { Pressable, ScrollView, Text, View } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -7,6 +7,7 @@ import screenStyles from "../styles/screen.styles";
 import homeStyles from "../styles/home.styles";
 import ProgressRing from "../components/ProgressRing";
 import WellbeingPieChart from "../components/WellbeingPieChart";
+import ThemedButton from "../components/ThemedButton";
 import { useStore } from "../store";
 import { BottomTabScreenProps } from "../types/navigation";
 import { WELLBEING_MAX_SCORE } from "../constants/metrics";
@@ -14,12 +15,14 @@ import { APP_TITLE } from "../constants/app";
 import { BOTTOM_TAB_BAR_APPROX_HEIGHT } from "../constants/layout";
 import { moodEmoji } from "../constants/moods";
 import { colors, spacing } from "../theme/theme";
+import { sendTestNotification } from "../services/notificationService";
 
 // Home uses tokenized styles; see src/theme/theme.ts and src/styles/* for references.
 const HomeScreen: React.FC<BottomTabScreenProps<"Home">> = ({ navigation }) => {
   const { state } = useStore();
   const insets = useSafeAreaInsets();
   const latest = state.history[0];
+  const [testingNotification, setTestingNotification] = useState(false);
 
   const currentMood = latest?.mood;
   const currentEmoji = currentMood ? moodEmoji[currentMood] : "😺";
@@ -28,6 +31,19 @@ const HomeScreen: React.FC<BottomTabScreenProps<"Home">> = ({ navigation }) => {
     () => spacing.md + insets.bottom + BOTTOM_TAB_BAR_APPROX_HEIGHT,
     [insets.bottom],
   );
+
+  const onTestNotificationPress = () => {
+    if (testingNotification) return;
+
+    setTestingNotification(true);
+    sendTestNotification()
+      .catch((err) => {
+        console.warn("Failed to send test notification", err);
+      })
+      .finally(() => {
+        setTestingNotification(false);
+      });
+  };
 
   return (
     <ScrollView
@@ -108,6 +124,16 @@ const HomeScreen: React.FC<BottomTabScreenProps<"Home">> = ({ navigation }) => {
       >
         <Text style={globalStyles.subheading}>Wellbeing breakdown</Text>
         <WellbeingPieChart entries={state.history} />
+
+        <ThemedButton
+          title="Test notification"
+          variant="secondary"
+          loading={testingNotification}
+          disabled={testingNotification}
+          accessibilityLabel="Send a test notification"
+          onPress={onTestNotificationPress}
+          testID="test-notification-button"
+        />
       </View>
 
       <View

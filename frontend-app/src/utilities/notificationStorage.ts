@@ -33,8 +33,3 @@ export async function loadNotificationResponses(): Promise<
     return [];
   }
 }
-
-/** Clears all stored notification responses. */
-export async function clearNotificationResponses(): Promise<void> {
-  await AsyncStorage.removeItem(STORAGE_KEY);
-}

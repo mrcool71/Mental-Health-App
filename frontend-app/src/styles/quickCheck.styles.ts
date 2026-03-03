@@ -2,7 +2,7 @@ import { Dimensions, StyleSheet } from "react-native";
 import theme from "../theme/theme";
 
 const screenWidth = Dimensions.get("window").width;
-export const moodCardWidth =
+const moodCardWidth =
   (screenWidth - theme.spacing.lg * 2 - theme.spacing.sm) / 2;
 
 export default StyleSheet.create({

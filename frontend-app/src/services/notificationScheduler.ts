@@ -1,4 +1,5 @@
 import notifee, {
+  AndroidImportance,
   TriggerType,
   type TimestampTrigger,
 } from "@notifee/react-native";
@@ -12,7 +13,7 @@ import {
   buildDailyQuestionBatch,
   buildNotificationPayload,
 } from "../utilities/questionHelpers";
-import { AndroidImportance } from "@notifee/react-native";
+
 
 export async function setupNotificationChannel(): Promise<void> {
   if (Platform.OS !== "android") return;

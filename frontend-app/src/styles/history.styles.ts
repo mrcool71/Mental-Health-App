@@ -43,11 +43,6 @@ export default StyleSheet.create({
   },
 
   // Section headers
-  sectionHeader: {
-    marginTop: theme.spacing.lg,
-    marginBottom: theme.spacing.sm,
-    paddingHorizontal: theme.spacing.xs,
-  },
   sectionHeaderRow: {
     marginTop: theme.spacing.lg,
     marginBottom: theme.spacing.sm,
@@ -80,54 +75,4 @@ export default StyleSheet.create({
     fontFamily: theme.typography.fontFamilyPrimary,
   },
 
-  // Notification response card
-  notifCard: {
-    backgroundColor: theme.colors.white,
-    borderRadius: theme.radii.md,
-    padding: theme.spacing.md,
-    gap: theme.spacing.sm,
-    borderLeftWidth: 3,
-    borderLeftColor: theme.colors.primary,
-    shadowColor: theme.colors.shadow,
-    shadowOpacity: 0.5,
-    shadowOffset: { width: 0, height: 2 },
-    shadowRadius: 6,
-    elevation: 1,
-  },
-  notifHeader: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-  },
-  notifBadge: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 4,
-    backgroundColor: theme.colors.backgroundAlt,
-    borderRadius: theme.radii.pill,
-    paddingHorizontal: theme.spacing.sm,
-    paddingVertical: 3,
-  },
-  notifBadgeText: {
-    fontFamily: theme.typography.fontFamilyDisplay,
-    fontSize: theme.typography.sizes.small,
-    color: theme.colors.primary,
-  },
-  notifQuestion: {
-    fontFamily: theme.typography.fontFamilyDisplay,
-    fontSize: theme.typography.sizes.body,
-    color: theme.colors.plum,
-    lineHeight: 22,
-  },
-  notifAnswerRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: theme.spacing.xs,
-  },
-  notifAnswer: {
-    fontFamily: theme.typography.fontFamilyPrimary,
-    fontSize: theme.typography.sizes.body,
-    color: theme.colors.success,
-    fontWeight: "600",
-  },
 });

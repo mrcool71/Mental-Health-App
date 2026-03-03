@@ -3,9 +3,8 @@ import { Text, View } from "react-native";
 import ProgressBar from "../components/ProgressBar";
 import ProgressRing from "../components/ProgressRing";
 import ScreenScrollView from "../components/ScreenScrollView";
-import { WELLBEING_MAX_SCORE } from "../constants/wellbeing";
-import { moodScores } from "../constants/store";
 import {
+  WELLBEING_MAX_SCORE,
   WELLBEING_DEFAULT_STATS,
   WELLBEING_STAT_COLORS,
   WELLBEING_TIPS,
@@ -15,19 +14,15 @@ import globalStyles from "../styles/global.styles";
 import styles from "../styles/wellbeing.styles";
 import { BottomTabScreenProps } from "../types/navigation";
 import type { BreakdownStat } from "../types/wellbeing";
-import { getScoreLabel } from "../utilities";
+import { calculateScore, getScoreLabel } from "../utilities";
 
 const WellbeingScreen: React.FC<BottomTabScreenProps<"Wellbeing">> = () => {
   const { state } = useStore();
 
-  const moodScore = useMemo<number>(() => {
-    if (!state.history.length) return state.score;
-    const total = state.history.reduce(
-      (sum, entry) => sum + moodScores[entry.mood],
-      0,
-    );
-    return Math.round(total / state.history.length);
-  }, [state.history, state.score]);
+  const moodScore = useMemo<number>(
+    () => calculateScore(state.history),
+    [state.history],
+  );
 
   const scoreLabel = useMemo<string>(
     () => getScoreLabel(state.score),

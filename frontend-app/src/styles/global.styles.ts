@@ -13,25 +13,8 @@ export default StyleSheet.create({
     paddingBottom: theme.spacing.xl * 2,
     gap: theme.spacing.md,
   },
-  row: {
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  spacer: {
-    height: theme.spacing.md,
-  },
 
   // Cards
-  card: {
-    backgroundColor: theme.colors.surface,
-    borderRadius: theme.radii.lg,
-    padding: theme.spacing.lg,
-    shadowColor: theme.colors.black,
-    shadowOpacity: 0.08,
-    shadowOffset: { width: 0, height: 4 },
-    shadowRadius: 12,
-    elevation: 2,
-  },
   listItem: {
     backgroundColor: theme.colors.white,
     borderRadius: theme.radii.md,
@@ -79,43 +62,10 @@ export default StyleSheet.create({
     marginBottom: theme.spacing.sm,
   },
 
-  // Buttons
-  pillButton: {
-    borderRadius: theme.radii.pill,
-    paddingVertical: theme.spacing.sm,
-    paddingHorizontal: theme.spacing.lg,
-    backgroundColor: theme.colors.primary,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  pillButtonText: {
-    color: theme.colors.white,
-    fontWeight: "600",
-    fontSize: theme.typography.sizes.body,
-  },
-
-  // Sections (previously in screen.styles)
+  // Sections
   section: {
     marginTop: theme.spacing.lg,
     gap: theme.spacing.sm,
-  },
-  heroRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    gap: theme.spacing.sm,
-  },
-
-  // Progress bars
-  progressTrack: {
-    height: 4,
-    borderRadius: 2,
-    backgroundColor: theme.colors.backgroundAlt,
-    overflow: "hidden",
-  },
-  progressFill: {
-    height: 4,
-    borderRadius: 2,
   },
 
   // Mascot circles

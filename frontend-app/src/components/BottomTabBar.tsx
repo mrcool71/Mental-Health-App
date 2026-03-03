@@ -9,18 +9,11 @@ import {
 import { BottomTabBarProps } from "@react-navigation/bottom-tabs";
 import { MaterialIcons } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { TAB_ICONS } from "../constants/navigation";
 import theme from "../theme/theme";
 import styles from "../styles/bottomTabs.styles";
 import { useStore } from "../store";
 import type { TabBarItemProps } from "../types/components";
-
-const ICONS: Record<string, string> = {
-  Home: "home",
-  Wellbeing: "favorite",
-  History: "history",
-  Profile: "person",
-  Resources: "menu-book",
-};
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
@@ -65,9 +58,7 @@ function TabBarItem({
     >
       <View>
         <MaterialIcons name={iconName as any} size={24} color={color} />
-        {routeName === "History" && showBadge ? (
-          <View style={styles.badgeDot} />
-        ) : null}
+        {routeName === "History" && showBadge ? <View style={styles.badgeDot} /> : null}
       </View>
       <Text style={[styles.label, { color }]}>{label}</Text>
     </AnimatedPressable>
@@ -108,7 +99,7 @@ export default function BottomTabBar({
               ? options.title
               : route.name;
 
-        const iconName = ICONS[route.name] ?? "ellipse";
+        const iconName = TAB_ICONS[route.name] ?? "ellipse";
 
         const onPress = () => {
           const event = navigation.emit({

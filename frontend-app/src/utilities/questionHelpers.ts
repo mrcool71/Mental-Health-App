@@ -24,11 +24,17 @@ function shuffle<T>(arr: T[]): T[] {
   return copy;
 }
 
-function pickTwoDistinct(pool: Question[], start: number): [Question, Question] {
+function pickTwoDistinct(
+  pool: Question[],
+  start: number,
+): [Question, Question] {
   const slice = pool.slice(start);
   if (slice.length === 0) throw new Error("No questions available");
   if (slice.length === 1) return [slice[0], slice[0]];
-  return [slice[0], slice[1].id !== slice[0].id || slice.length < 3 ? slice[1] : slice[2]];
+  return [
+    slice[0],
+    slice[1].id !== slice[0].id || slice.length < 3 ? slice[1] : slice[2],
+  ];
 }
 
 function pad2(n: number): string {
@@ -40,11 +46,21 @@ function localDateKey(d: Date): string {
 }
 
 function makeDate(base: Date, dayOffset: number): Date {
-  return new Date(base.getFullYear(), base.getMonth(), base.getDate() + dayOffset);
+  return new Date(
+    base.getFullYear(),
+    base.getMonth(),
+    base.getDate() + dayOffset,
+  );
 }
 
 function toTimestamp(day: Date, hour: number, minute: number): number {
-  return new Date(day.getFullYear(), day.getMonth(), day.getDate(), hour, minute).getTime();
+  return new Date(
+    day.getFullYear(),
+    day.getMonth(),
+    day.getDate(),
+    hour,
+    minute,
+  ).getTime();
 }
 
 /** Builds a flat list of {id, question, timestamp} for the next SCHEDULE_DAYS. */
@@ -57,7 +73,10 @@ export function buildDailyQuestionBatch(): ScheduledQuestion[] {
   let idx = 0;
 
   for (let day = 0; day < SCHEDULE_DAYS; day++) {
-    if (idx + 2 > pool.length) { pool = shuffle(questionsData.questions); idx = 0; }
+    if (idx + 2 > pool.length) {
+      pool = shuffle(questionsData.questions);
+      idx = 0;
+    }
 
     const [q1, q2] = pickTwoDistinct(pool, idx);
     idx += 2;

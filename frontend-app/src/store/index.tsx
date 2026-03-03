@@ -6,16 +6,16 @@ import React, {
   useReducer,
   ReactNode,
 } from "react";
-import { AppAction, AppState, MoodEntry, NotificationResponse } from "../types/models";
-import { initialState, moodScores } from "../constants/store";
+import {
+  AppAction,
+  AppState,
+  MoodEntry,
+  NotificationResponse,
+} from "../types/models";
+import { initialState } from "../constants/store";
 import type { StoreContextProps } from "../types/store";
 import { loadNotificationResponses } from "../utilities/notificationStorage";
-
-function calculateScore(entries: MoodEntry[]): number {
-  if (!entries.length) return initialState.score;
-  const total = entries.reduce((sum, entry) => sum + moodScores[entry.mood], 0);
-  return Math.round(total / entries.length);
-}
+import { calculateScore } from "../utilities";
 
 function reducer(state: AppState, action: AppAction): AppState {
   switch (action.type) {
@@ -31,6 +31,8 @@ function reducer(state: AppState, action: AppAction): AppState {
       };
     case "LOAD_NOTIFICATION_RESPONSES":
       return { ...state, notificationResponses: action.payload };
+    case "SET_ONBOARDED":
+      return { ...state, hasOnboarded: true };
     case "RESET":
       return initialState;
     default:
@@ -64,8 +66,16 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({
     dispatch({ type: "ADD_NOTIFICATION_RESPONSE", payload: response });
   };
 
+  const setOnboarded = () => {
+    dispatch({ type: "SET_ONBOARDED" });
+  };
+
+  const reset = () => {
+    dispatch({ type: "RESET" });
+  };
+
   const value = useMemo(
-    () => ({ state, addEntry, addNotificationResponse }),
+    () => ({ state, addEntry, addNotificationResponse, setOnboarded, reset }),
     [state],
   );
 

@@ -1,34 +1,68 @@
 import { StyleSheet } from "react-native";
-import { colors, spacing, radii, typography, touch } from "../theme/theme";
+import theme from "../theme/theme";
 
-// Common header styles; consistent tokens from src/theme/theme.ts.
 export default StyleSheet.create({
   container: {
+    height: theme.sizes.headerHeight,
+    backgroundColor: theme.colors.surface,
+    paddingHorizontal: theme.spacing.md,
+    paddingTop: theme.spacing.lg,
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "space-between",
-    marginBottom: spacing.lg,
-  },
-  title: {
-    fontSize: typography.sizes.h1,
-    fontFamily: typography.fontFamilyDisplay,
-    color: colors.textPrimary,
-    flex: 1,
-  },
-  placeholder: {
-    flex: 1,
-  },
-  profileButton: {
-    width: touch.minSize,
-    height: touch.minSize,
-    borderRadius: radii.md,
-    backgroundColor: colors.white,
-    alignItems: "center",
-    justifyContent: "center",
-    shadowColor: colors.black,
-    shadowOpacity: 0.08,
+    borderBottomWidth: 0,
+    shadowColor: theme.colors.black,
+    shadowOpacity: 0.05,
     shadowOffset: { width: 0, height: 2 },
     shadowRadius: 8,
-    elevation: 2,
+    elevation: 3,
+  },
+  profileWrap: {
+    width: theme.sizes.avatar,
+    height: theme.sizes.avatar,
+    borderRadius: theme.radii.pill,
+    overflow: "hidden",
+    borderWidth: 2,
+    borderColor: theme.colors.cardSoft,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  avatar: {
+    width: theme.sizes.avatar - 4,
+    height: theme.sizes.avatar - 4,
+    borderRadius: (theme.sizes.avatar - 4) / 2,
+  },
+  titleWrap: {
+    flex: 1,
+    alignItems: "flex-start",
+    marginLeft: theme.spacing.md,
+  },
+  title: {
+    fontSize: theme.typography.sizes.h2,
+    color: theme.colors.plum,
+    fontFamily: theme.typography.fontFamilyDisplay,
+  },
+  bellWrap: {
+    width: 44,
+    height: 44,
+    borderRadius: 12,
+    justifyContent: "center",
+    alignItems: "center",
+    position: "relative",
+  },
+  badge: {
+    position: "absolute",
+    right: 2,
+    top: 6,
+    minWidth: 18,
+    height: 18,
+    borderRadius: 9,
+    backgroundColor: theme.colors.primary,
+    justifyContent: "center",
+    alignItems: "center",
+    paddingHorizontal: 3,
+  },
+  badgeText: {
+    fontSize: 11,
+    color: "#fff",
   },
 });

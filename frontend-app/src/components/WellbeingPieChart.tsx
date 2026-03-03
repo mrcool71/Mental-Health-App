@@ -1,17 +1,11 @@
 import React, { useMemo } from "react";
 import { Text, View } from "react-native";
 import Svg, { Circle } from "react-native-svg";
+import { MOOD_COLORS } from "../constants/moods";
 import { colors, spacing } from "../theme/theme";
 import pieStyles from "../styles/pie.styles";
 import { Mood, MoodEntry } from "../types/models";
 import type { PieSegment, WellbeingPieChartProps } from "../types/components";
-
-const MOOD_COLORS: Record<Mood, string> = {
-  happy: colors.primary,
-  good: colors.accent,
-  okay: colors.lilac,
-  sad: colors.danger,
-};
 
 export default function WellbeingPieChart({
   entries,

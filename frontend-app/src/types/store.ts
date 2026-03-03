@@ -4,4 +4,6 @@ export interface StoreContextProps {
   state: AppState;
   addEntry: (entry: MoodEntry) => void;
   addNotificationResponse: (response: NotificationResponse) => void;
+  setOnboarded: () => void;
+  reset: () => void;
 }

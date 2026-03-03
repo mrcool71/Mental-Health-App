@@ -1,43 +1,37 @@
 const { withProjectBuildGradle } = require('@expo/config-plugins');
 
-const NOTIFEE_MAVEN_REPO = "maven { url \"$rootDir/../node_modules/@notifee/react-native/android/libs\" }";
+const NOTIFEE_MAVEN_LINE = 'maven { url "$rootDir/../node_modules/@notifee/react-native/android/libs" }';
 
-function addNotifeeRepoToAllProjectsRepositories(buildGradle) {
-  if (buildGradle.includes(NOTIFEE_MAVEN_REPO)) return buildGradle;
+function addNotifeeRepo(buildGradle) {
+  if (buildGradle.includes(NOTIFEE_MAVEN_LINE)) return buildGradle;
 
-  const repositoriesMatch = buildGradle.match(/(^[ \t]*)repositories\s*\{/m);
-  if (!repositoriesMatch) return buildGradle;
+  // Target the allprojects { repositories { ... } } block specifically.
+  const allProjectsMatch = buildGradle.match(/allprojects\s*\{/);
+  if (!allProjectsMatch) return buildGradle;
 
-  const repositoriesIndent = repositoriesMatch[1] ?? "";
-  const insertIndent = `${repositoriesIndent}  `;
-  const repositoriesStart = repositoriesMatch.index;
-  const openBraceIndex = buildGradle.indexOf("{", repositoriesStart);
-  if (openBraceIndex === -1) return buildGradle;
+  const searchStart = allProjectsMatch.index + allProjectsMatch[0].length;
+  const reposMatch = buildGradle.substring(searchStart).match(/([ \t]*)repositories\s*\{/);
+  if (!reposMatch) return buildGradle;
 
-  // Find the matching closing brace for the repositories { ... } block.
-  let depth = 0;
-  let closeBraceIndex = -1;
-  for (let i = openBraceIndex; i < buildGradle.length; i += 1) {
-    const ch = buildGradle[i];
-    if (ch === "{") depth += 1;
-    if (ch === "}") {
-      depth -= 1;
-      if (depth === 0) {
-        closeBraceIndex = i;
-        break;
-      }
-    }
+  const reposOpenIndex = searchStart + reposMatch.index + reposMatch[0].length;
+  const indent = (reposMatch[1] ?? '') + '    ';
+
+  // Find matching closing brace
+  let depth = 1;
+  let closeIndex = -1;
+  for (let i = reposOpenIndex; i < buildGradle.length; i++) {
+    if (buildGradle[i] === '{') depth++;
+    if (buildGradle[i] === '}') { depth--; if (depth === 0) { closeIndex = i; break; } }
   }
+  if (closeIndex === -1) return buildGradle;
 
-  if (closeBraceIndex === -1) return buildGradle;
-
-  const insertion = `\n${insertIndent}${NOTIFEE_MAVEN_REPO}`;
-  return `${buildGradle.slice(0, closeBraceIndex)}${insertion}\n${buildGradle.slice(closeBraceIndex)}`;
+  const insertion = `\n${indent}${NOTIFEE_MAVEN_LINE}`;
+  return buildGradle.slice(0, closeIndex) + insertion + '\n' + buildGradle.slice(closeIndex);
 }
 
 module.exports = function withNotifeeMavenRepo(config) {
-  return withProjectBuildGradle(config, (config) => {
-    config.modResults.contents = addNotifeeRepoToAllProjectsRepositories(config.modResults.contents);
-    return config;
+  return withProjectBuildGradle(config, (cfg) => {
+    cfg.modResults.contents = addNotifeeRepo(cfg.modResults.contents);
+    return cfg;
   });
 };

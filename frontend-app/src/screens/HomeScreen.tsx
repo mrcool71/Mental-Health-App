@@ -15,7 +15,7 @@ import { APP_TITLE } from "../constants/app";
 import { BOTTOM_TAB_BAR_APPROX_HEIGHT } from "../constants/layout";
 import { moodEmoji } from "../constants/moods";
 import { colors, spacing } from "../theme/theme";
-import { sendTestNotification } from "../services/notificationService";
+import { sendTestNotification } from "../utilities/testNotification";
 
 // Home uses tokenized styles; see src/theme/theme.ts and src/styles/* for references.
 const HomeScreen: React.FC<BottomTabScreenProps<"Home">> = ({ navigation }) => {

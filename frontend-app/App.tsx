@@ -1,97 +1,101 @@
 import "react-native-gesture-handler";
-import React, { useCallback, useEffect } from "react";
+import React, { useEffect } from "react";
 import { StatusBar } from "expo-status-bar";
-import { View, Text } from "react-native";
-import * as SplashScreen from "expo-splash-screen";
-// import {
-//   Poppins_400Regular,
-//   Poppins_600SemiBold,
-//   Poppins_700Bold,
-// } from "@expo-google-fonts/poppins";
-// import {
-//   Manrope_200ExtraLight,
-//   Manrope_300Light,
-//   Manrope_400Regular,
-//   Manrope_500Medium,
-//   Manrope_600SemiBold,
-//   Manrope_700Bold,
-//   Manrope_800ExtraBold,
-// } from "@expo-google-fonts/manrope";
 import { SafeAreaProvider } from "react-native-safe-area-context";
+import notifee, { EventType } from "@notifee/react-native";
 import { StoreProvider } from "./src/store";
+import { useStore } from "./src/store";
 import AppNavigator from "./src/navigation";
-import globalStyles from "./src/styles/global.styles";
-import { useFonts } from "expo-font";
+import type { NotificationResponse } from "./src/types/models";
+import {
+  setupNotificationChannel,
+  setupIOSCategories,
+  requestNotificationPermission,
+  scheduleNotifications,
+} from "./src/utilities/scheduledNotifications";
+import { saveNotificationResponse } from "./src/utilities/notificationStorage";
 
-//SplashScreen.preventAutoHideAsync();
+/**
+ * Handles Notifee events while the app is in the FOREGROUND.
+ * Must live inside <StoreProvider> so it can call useStore().
+ * The equivalent background handler (for when the app is killed) lives in
+ * index.ts, registered before registerRootComponent.
+ */
+function NotificationHandler() {
+  const { addNotificationResponse } = useStore();
+
+  useEffect(() => {
+    const unsubscribe = notifee.onForegroundEvent(({ type, detail }) => {
+      if (type !== EventType.ACTION_PRESS) return;
+
+      const { notification, pressAction } = detail;
+      if (!notification || !pressAction) return;
+
+      const actionId = pressAction.id;
+      if (!actionId?.startsWith("option_")) return;
+
+      const optionIndex = parseInt(actionId.replace("option_", ""), 10);
+      if (isNaN(optionIndex)) return;
+
+      const data = (notification.data ?? {}) as {
+        questionId?: string;
+        questionText?: string;
+        options?: string;
+      };
+      if (!data.questionId || !data.options) return;
+
+      let options: string[];
+      try {
+        options = JSON.parse(data.options) as string[];
+      } catch {
+        return;
+      }
+
+      const response: NotificationResponse = {
+        id: `${notification.id ?? "n"}_${Date.now()}`,
+        questionId: parseInt(data.questionId, 10),
+        questionText: data.questionText ?? "",
+        optionIndex,
+        optionText: options[optionIndex] ?? "",
+        timestamp: Date.now(),
+      };
+
+      // Save to AsyncStorage (persists across restarts) AND update in-memory state
+      saveNotificationResponse(response);
+      addNotificationResponse(response);
+
+      // Dismiss the answered notification
+      if (notification.id) notifee.cancelNotification(notification.id);
+    });
+
+    return () => unsubscribe();
+  }, [addNotificationResponse]);
+
+  return null;
+}
+
+/**
+ * Top-level setup: channel, categories, permissions, and scheduling.
+ * Runs once when the app becomes active.
+ */
+async function initNotifications() {
+  await setupNotificationChannel();
+  await setupIOSCategories();
+  const granted = await requestNotificationPermission();
+  if (granted) {
+    await scheduleNotifications();
+  }
+}
+
 export default function App() {
-  // const [fontsLoaded, fontError] = useFonts({
-  //   PoppinsRegular: Poppins_400Regular,
-  //   PoppinsSemiBold: Poppins_600SemiBold,
-  //   PoppinsBold: Poppins_700Bold,
-  //   Manrope_200ExtraLight,
-  //   Manrope_300Light,
-  //   Manrope_400Regular,
-  //   Manrope_500Medium,
-  //   Manrope_600SemiBold,
-  //   Manrope_700Bold,
-  //   Manrope_800ExtraBold,
-  // });
-
-  // useEffect(() => {
-  //   if (fontsLoaded) {
-  //     console.log("✅ Poppins fonts loaded successfully");
-  //   }
-  //   if (fontError) {
-  //     console.error("❌ Font loading error:", fontError);
-  //   }
-  // }, [fontsLoaded, fontError]);
-
-  // const onLayoutRootView = useCallback(async () => {
-  //   if (fontsLoaded || fontError) {
-  //     // Hide the splash screen once fonts are loaded or an error occurs
-  //     await SplashScreen.hideAsync();
-  //   }
-  // }, [fontsLoaded, fontError]);
-
-  // if (!fontsLoaded && !fontError) {
-  //   return (
-  //     <View
-  //       style={{
-  //         flex: 1,
-  //         justifyContent: "center",
-  //         alignItems: "center",
-  //         backgroundColor: "#FFF8F2",
-  //       }}
-  //     >
-  //       <Text style={{ fontSize: 16, color: "#1F2937" }}>
-  //         Loading Poppins fonts...
-  //       </Text>
-  //     </View>
-  //   );
-  // }
-
-  // if (fontError) {
-  //   return (
-  //     <View
-  //       style={{
-  //         flex: 1,
-  //         justifyContent: "center",
-  //         alignItems: "center",
-  //         backgroundColor: "#FFF8F2",
-  //         padding: 20,
-  //       }}
-  //     >
-  //       <Text style={{ fontSize: 16, color: "#E02424", textAlign: "center" }}>
-  //         Font loading error: {fontError.message}
-  //       </Text>
-  //     </View>
-  //   );
-  // }
+  useEffect(() => {
+    initNotifications().catch(console.error);
+  }, []);
 
   return (
     <SafeAreaProvider>
       <StoreProvider>
+        <NotificationHandler />
         <AppNavigator />
         <StatusBar style="dark" />
       </StoreProvider>

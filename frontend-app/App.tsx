@@ -13,6 +13,7 @@ import {
 } from "./src/services/notificationScheduler";
 import { saveNotificationResponse } from "./src/utilities/notificationStorage";
 import { parseNotificationAction } from "./src/utilities/parseNotificationAction";
+import SensorCollector from "./src/components/SensorCollector";
 
 /** Handles Notifee foreground action presses (background equivalent in index.ts). */
 function NotificationHandler() {
@@ -55,6 +56,7 @@ export default function App() {
     <SafeAreaProvider>
       <StoreProvider>
         <NotificationHandler />
+        <SensorCollector />
         <AppNavigator />
         <StatusBar style="dark" />
       </StoreProvider>

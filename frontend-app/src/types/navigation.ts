@@ -9,6 +9,7 @@ export type BottomTabParamList = {
   Home: undefined;
   Wellbeing: undefined;
   History: undefined;
+  SensorData: undefined;
   Profile: undefined;
   Resources: undefined;
 };

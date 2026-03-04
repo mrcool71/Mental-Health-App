@@ -1,5 +1,6 @@
 import React, {
   createContext,
+  useCallback,
   useContext,
   useEffect,
   useMemo,
@@ -15,6 +16,11 @@ import {
 import { initialState } from "../constants/store";
 import type { StoreContextProps } from "../types/store";
 import { loadNotificationResponses } from "../utilities/notificationStorage";
+import { loadLastLocationReading } from "../utilities/sensorStorage";
+import {
+  loadLastAccelerometerReading,
+  loadLastMicrophoneReading,
+} from "../utilities/sensorStorage";
 import { calculateScore } from "../utilities";
 
 function reducer(state: AppState, action: AppAction): AppState {
@@ -33,6 +39,78 @@ function reducer(state: AppState, action: AppAction): AppState {
       return { ...state, notificationResponses: action.payload };
     case "SET_ONBOARDED":
       return { ...state, hasOnboarded: true };
+    case "SET_SENSOR_ENABLED": {
+      const { sensor, enabled } = action.payload;
+      return {
+        ...state,
+        sensors: {
+          ...state.sensors,
+          enabled: { ...state.sensors.enabled, [sensor]: enabled },
+        },
+      };
+    }
+    case "SET_BACKGROUND_LOCATION_ENABLED": {
+      return {
+        ...state,
+        sensors: {
+          ...state.sensors,
+          backgroundLocationEnabled: action.payload,
+        },
+      };
+    }
+    case "SET_BACKGROUND_SENSORS_ENABLED": {
+      return {
+        ...state,
+        sensors: {
+          ...state.sensors,
+          backgroundSensorsEnabled: action.payload,
+        },
+      };
+    }
+    case "SET_SENSOR_PERMISSION": {
+      const { permission, status } = action.payload;
+      return {
+        ...state,
+        sensors: {
+          ...state.sensors,
+          permissions: { ...state.sensors.permissions, [permission]: status },
+        },
+      };
+    }
+    case "SET_SENSOR_ERROR": {
+      const { sensor, error } = action.payload;
+      return {
+        ...state,
+        sensors: {
+          ...state.sensors,
+          errors: { ...state.sensors.errors, [sensor]: error },
+        },
+      };
+    }
+    case "SET_LOCATION_READING":
+      return {
+        ...state,
+        sensors: {
+          ...state.sensors,
+          location: action.payload,
+        },
+      };
+    case "SET_ACCELEROMETER_READING":
+      return {
+        ...state,
+        sensors: {
+          ...state.sensors,
+          accelerometer: action.payload,
+        },
+      };
+    case "SET_MICROPHONE_READING":
+      return {
+        ...state,
+        sensors: {
+          ...state.sensors,
+          microphone: action.payload,
+        },
+      };
     case "RESET":
       return initialState;
     default:
@@ -58,24 +136,130 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({
     });
   }, []);
 
-  const addEntry = (entry: MoodEntry) => {
-    dispatch({ type: "ADD_ENTRY", payload: entry });
-  };
+  useEffect(() => {
+    loadLastLocationReading().then((reading) => {
+      if (reading) {
+        dispatch({ type: "SET_LOCATION_READING", payload: reading });
+      }
+    });
+  }, []);
 
-  const addNotificationResponse = (response: NotificationResponse) => {
-    dispatch({ type: "ADD_NOTIFICATION_RESPONSE", payload: response });
-  };
+  useEffect(() => {
+    loadLastAccelerometerReading().then((reading) => {
+      if (reading) {
+        dispatch({ type: "SET_ACCELEROMETER_READING", payload: reading });
+      }
+    });
+  }, []);
 
-  const setOnboarded = () => {
-    dispatch({ type: "SET_ONBOARDED" });
-  };
+  useEffect(() => {
+    loadLastMicrophoneReading().then((reading) => {
+      if (reading) {
+        dispatch({ type: "SET_MICROPHONE_READING", payload: reading });
+      }
+    });
+  }, []);
 
-  const reset = () => {
-    dispatch({ type: "RESET" });
-  };
+  const addEntry = useCallback(
+    (entry: MoodEntry) => dispatch({ type: "ADD_ENTRY", payload: entry }),
+    [],
+  );
+
+  const addNotificationResponse = useCallback(
+    (response: NotificationResponse) =>
+      dispatch({ type: "ADD_NOTIFICATION_RESPONSE", payload: response }),
+    [],
+  );
+
+  const setOnboarded = useCallback(
+    () => dispatch({ type: "SET_ONBOARDED" }),
+    [],
+  );
+
+  const setSensorEnabled = useCallback<StoreContextProps["setSensorEnabled"]>(
+    (sensor, enabled) =>
+      dispatch({ type: "SET_SENSOR_ENABLED", payload: { sensor, enabled } }),
+    [],
+  );
+
+  const setBackgroundLocationEnabled = useCallback<
+    StoreContextProps["setBackgroundLocationEnabled"]
+  >(
+    (enabled) =>
+      dispatch({ type: "SET_BACKGROUND_LOCATION_ENABLED", payload: enabled }),
+    [],
+  );
+
+  const setBackgroundSensorsEnabled = useCallback<
+    StoreContextProps["setBackgroundSensorsEnabled"]
+  >(
+    (enabled) =>
+      dispatch({ type: "SET_BACKGROUND_SENSORS_ENABLED", payload: enabled }),
+    [],
+  );
+
+  const setSensorPermission = useCallback<
+    StoreContextProps["setSensorPermission"]
+  >(
+    (permission, status) =>
+      dispatch({
+        type: "SET_SENSOR_PERMISSION",
+        payload: { permission, status },
+      }),
+    [],
+  );
+
+  const setSensorError = useCallback<StoreContextProps["setSensorError"]>(
+    (sensor, error) =>
+      dispatch({ type: "SET_SENSOR_ERROR", payload: { sensor, error } }),
+    [],
+  );
+
+  const setLocationReading = useCallback<
+    StoreContextProps["setLocationReading"]
+  >(
+    (reading) =>
+      dispatch({ type: "SET_LOCATION_READING", payload: reading }),
+    [],
+  );
+
+  const setAccelerometerReading = useCallback<
+    StoreContextProps["setAccelerometerReading"]
+  >(
+    (reading) =>
+      dispatch({ type: "SET_ACCELEROMETER_READING", payload: reading }),
+    [],
+  );
+
+  const setMicrophoneReading = useCallback<
+    StoreContextProps["setMicrophoneReading"]
+  >(
+    (reading) =>
+      dispatch({ type: "SET_MICROPHONE_READING", payload: reading }),
+    [],
+  );
+
+  const reset = useCallback(
+    () => dispatch({ type: "RESET" }),
+    [],
+  );
 
   const value = useMemo(
-    () => ({ state, addEntry, addNotificationResponse, setOnboarded, reset }),
+    () => ({
+      state,
+      addEntry,
+      addNotificationResponse,
+      setOnboarded,
+      setSensorEnabled,
+      setBackgroundLocationEnabled,
+      setBackgroundSensorsEnabled,
+      setSensorPermission,
+      setSensorError,
+      setLocationReading,
+      setAccelerometerReading,
+      setMicrophoneReading,
+      reset,
+    }),
     [state],
   );
 

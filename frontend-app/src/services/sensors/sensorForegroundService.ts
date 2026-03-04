@@ -20,7 +20,6 @@ import {
   appendAccelerometerReadings,
   appendMicrophoneReadings,
 } from "../../utilities/sensorStorage";
-import { sleep } from "../../utilities";
 
 let serviceRunning = false;
 function sleep(ms: number): Promise<void> {

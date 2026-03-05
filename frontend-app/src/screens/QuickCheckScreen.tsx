@@ -115,7 +115,7 @@ const QuickCheckScreen: React.FC<RootStackScreenProps<"QuickCheck">> = ({
 
   const handleBack = () => {
     if (completedAssessment) {
-      navigation.navigate("Tabs", { screen: "Home" });
+      navigation.replace("Tabs", { screen: "Home" });
       return;
     }
 

@@ -11,6 +11,7 @@ import {
   AppState,
   MoodEntry,
   NotificationResponse,
+  Phq9Assessment,
 } from "../types/models";
 import { initialState } from "../constants/store";
 import type { StoreContextProps } from "../types/store";
@@ -31,6 +32,11 @@ function reducer(state: AppState, action: AppAction): AppState {
       };
     case "LOAD_NOTIFICATION_RESPONSES":
       return { ...state, notificationResponses: action.payload };
+    case "ADD_PHQ9_ASSESSMENT":
+      return {
+        ...state,
+        phq9History: [action.payload, ...state.phq9History],
+      };
     case "SET_ONBOARDED":
       return { ...state, hasOnboarded: true };
     case "RESET":
@@ -66,6 +72,10 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({
     dispatch({ type: "ADD_NOTIFICATION_RESPONSE", payload: response });
   };
 
+  const addPhq9Assessment = (assessment: Phq9Assessment) => {
+    dispatch({ type: "ADD_PHQ9_ASSESSMENT", payload: assessment });
+  };
+
   const setOnboarded = () => {
     dispatch({ type: "SET_ONBOARDED" });
   };
@@ -75,7 +85,14 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({
   };
 
   const value = useMemo(
-    () => ({ state, addEntry, addNotificationResponse, setOnboarded, reset }),
+    () => ({
+      state,
+      addEntry,
+      addNotificationResponse,
+      addPhq9Assessment,
+      setOnboarded,
+      reset,
+    }),
     [state],
   );
 

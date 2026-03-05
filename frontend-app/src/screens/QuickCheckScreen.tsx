@@ -1,190 +1,229 @@
-import React, { useEffect, useRef, useState } from "react";
-import {
-  Animated,
-  Text,
-  TouchableOpacity,
-  View,
-} from "react-native";
+import React, { useEffect, useMemo, useRef, useState } from "react";
+import { Animated, Text, TouchableOpacity, View } from "react-native";
 import ProgressBar from "../components/ProgressBar";
 import ScreenScrollView from "../components/ScreenScrollView";
-import { moodEmoji, quickCheckMoods } from "../constants/moods";
-import {
-  ENERGY_OPTIONS,
-  QUICK_CHECK_TIMEOUT_MS,
-} from "../constants/history";
+import { PHQ9_MAX_SCORE, PHQ9_OPTIONS, PHQ9_QUESTIONS } from "../constants/phq9";
 import { useStore } from "../store";
 import globalStyles from "../styles/global.styles";
 import quickCheckStyles from "../styles/quickCheck.styles";
-import { EnergyLevel, Mood, MoodEntry } from "../types/models";
+import type { MoodEntry, Phq9Assessment } from "../types/models";
 import { RootStackScreenProps } from "../types/navigation";
+import {
+  getPhq9Severity,
+  getPhq9SeverityLabel,
+  mapPhq9ScoreToEnergy,
+  mapPhq9ScoreToMood,
+} from "../utilities";
 
 const QuickCheckScreen: React.FC<RootStackScreenProps<"QuickCheck">> = ({
   navigation,
 }) => {
-  const { addEntry } = useStore();
-  const [step, setStep] = useState<number>(0);
-  const [selectedMood, setSelectedMood] = useState<Mood | null>(null);
-  const [selectedEnergy, setSelectedEnergy] =
-    useState<EnergyLevel | null>(null);
+  const { addEntry, addPhq9Assessment } = useStore();
+  const [questionIndex, setQuestionIndex] = useState<number>(0);
+  const [answers, setAnswers] = useState<Array<number | null>>(
+    Array(PHQ9_QUESTIONS.length).fill(null),
+  );
+  const [completedAssessment, setCompletedAssessment] =
+    useState<Phq9Assessment | null>(null);
 
-  const progressAnim = useRef<Animated.Value>(new Animated.Value(1 / 3)).current;
-  const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const hasSavedRef = useRef<boolean>(false);
+  const progressAnim = useRef<Animated.Value>(
+    new Animated.Value(1 / PHQ9_QUESTIONS.length),
+  ).current;
+
+  const currentQuestion = PHQ9_QUESTIONS[questionIndex];
+  const selectedScore = answers[questionIndex];
 
   useEffect(() => {
     Animated.timing(progressAnim, {
-      toValue: (step + 1) / 3,
+      toValue: completedAssessment
+        ? 1
+        : (questionIndex + 1) / PHQ9_QUESTIONS.length,
       duration: 240,
       useNativeDriver: false,
     }).start();
-  }, [progressAnim, step]);
-
-  useEffect(() => {
-    if (step === 2 && selectedMood && selectedEnergy && !hasSavedRef.current) {
-      const entry: MoodEntry = {
-        id: `${Date.now()}`,
-        timestamp: Date.now(),
-        mood: selectedMood,
-        energy: selectedEnergy,
-      };
-      addEntry(entry);
-      hasSavedRef.current = true;
-
-      saveTimerRef.current = setTimeout(() => {
-        hasSavedRef.current = false;
-        saveTimerRef.current = null;
-      }, QUICK_CHECK_TIMEOUT_MS);
-    }
-
-    return () => {
-      if (saveTimerRef.current) {
-        clearTimeout(saveTimerRef.current);
-        saveTimerRef.current = null;
-      }
-    };
-  }, [addEntry, selectedEnergy, selectedMood, step]);
+  }, [completedAssessment, progressAnim, questionIndex]);
 
   const progressWidth = progressAnim.interpolate({
     inputRange: [0, 1],
     outputRange: ["0%", "100%"],
   });
 
-  const handleMoodSelect = (mood: Mood) => {
-    setSelectedMood(mood);
-    setStep(1);
+  const severitySummary = useMemo(() => {
+    if (!completedAssessment) return null;
+
+    const label = getPhq9SeverityLabel(completedAssessment.severity);
+    if (completedAssessment.score <= 4) {
+      return `${label} range. Keep checking in with your routines.`;
+    }
+    if (completedAssessment.score <= 9) {
+      return `${label} range. A small reset plan can help this week.`;
+    }
+    if (completedAssessment.score <= 14) {
+      return `${label} range. Consider adding support from someone you trust.`;
+    }
+    if (completedAssessment.score <= 19) {
+      return `${label} range. Reaching out to a professional can help.`;
+    }
+    return `${label} range. Please seek support as soon as possible.`;
+  }, [completedAssessment]);
+
+  const finalizeAssessment = (nextAnswers: Array<number | null>) => {
+    const now = Date.now();
+    const completeAnswers = nextAnswers.map((answer) => answer ?? 0);
+    const score = completeAnswers.reduce((sum, answer) => sum + answer, 0);
+    const severity = getPhq9Severity(score);
+
+    const assessment: Phq9Assessment = {
+      id: `phq9-${now}`,
+      timestamp: now,
+      answers: completeAnswers,
+      score,
+      severity,
+    };
+
+    const entry: MoodEntry = {
+      id: `mood-${now}`,
+      timestamp: now,
+      mood: mapPhq9ScoreToMood(score),
+      energy: mapPhq9ScoreToEnergy(score),
+      note: `PHQ-9 ${score}/${PHQ9_MAX_SCORE} (${getPhq9SeverityLabel(severity)})`,
+    };
+
+    addPhq9Assessment(assessment);
+    addEntry(entry);
+    setCompletedAssessment(assessment);
   };
 
-  const handleEnergySelect = (energy: EnergyLevel) => {
-    setSelectedEnergy(energy);
-    setStep(2);
+  const handleAnswer = (score: number) => {
+    const nextAnswers = [...answers];
+    nextAnswers[questionIndex] = score;
+    setAnswers(nextAnswers);
+
+    if (questionIndex < PHQ9_QUESTIONS.length - 1) {
+      setQuestionIndex(questionIndex + 1);
+      return;
+    }
+
+    finalizeAssessment(nextAnswers);
+  };
+
+  const handleBack = () => {
+    if (completedAssessment) {
+      navigation.navigate("Tabs", { screen: "Home" });
+      return;
+    }
+
+    if (questionIndex > 0) {
+      setQuestionIndex(questionIndex - 1);
+      return;
+    }
+
+    navigation.goBack();
   };
 
   return (
     <ScreenScrollView
-      accessibilityLabel="Quick check screen"
+      accessibilityLabel="PHQ-9 check-in screen"
       contentContainerStyle={quickCheckStyles.content}
     >
       <ProgressBar animatedWidth={progressWidth} />
 
-      {step === 0 ? (
-        <View style={quickCheckStyles.stepWrap}>
-          <Text style={[globalStyles.heading, quickCheckStyles.title]}>
-            {"How are you feeling\nright now?"}
-          </Text>
-          <Text style={[globalStyles.body, quickCheckStyles.subtitle]}>
-            Tap your mood to continue 🐾
-          </Text>
-
-          <View style={globalStyles.moodGrid}>
-            {quickCheckMoods.map((item) => (
-              <TouchableOpacity
-                key={item.mood}
-                accessibilityRole="button"
-                accessibilityLabel={`Select mood ${item.label}`}
-                style={[
-                  quickCheckStyles.moodCard,
-                  item.mood === "happy"
-                    ? quickCheckStyles.happyCard
-                    : item.mood === "good"
-                      ? quickCheckStyles.goodCard
-                      : item.mood === "okay"
-                        ? quickCheckStyles.okayCard
-                        : quickCheckStyles.sadCard,
-                ]}
-                onPress={() => handleMoodSelect(item.mood)}
-              >
-                <Text style={quickCheckStyles.moodEmoji}>{moodEmoji[item.mood]}</Text>
-                <Text style={quickCheckStyles.moodLabel}>{item.label}</Text>
-              </TouchableOpacity>
-            ))}
-          </View>
-        </View>
-      ) : null}
-
-      {step === 1 ? (
+      {!completedAssessment ? (
         <View style={quickCheckStyles.stepWrap}>
           <TouchableOpacity
             accessibilityRole="button"
-            accessibilityLabel="Go back to mood selection"
+            accessibilityLabel="Go back"
             style={quickCheckStyles.backButton}
-            onPress={() => setStep(0)}
+            onPress={handleBack}
           >
-            <Text style={quickCheckStyles.backText}>←</Text>
+            <Text style={quickCheckStyles.backText}>{"<"}</Text>
           </TouchableOpacity>
 
           <Text style={[globalStyles.heading, quickCheckStyles.title]}>
-            How's your energy level?
+            PHQ-9 Check-In
+          </Text>
+          <Text style={[globalStyles.body, quickCheckStyles.subtitle]}>
+            Question {questionIndex + 1} of {PHQ9_QUESTIONS.length}
           </Text>
 
-          <View style={quickCheckStyles.energyOptions}>
-            {ENERGY_OPTIONS.map((option) => (
+          <View style={quickCheckStyles.questionCard}>
+            <Text style={quickCheckStyles.questionLabel}>
+              Over the last 2 weeks, how often have you been bothered by:
+            </Text>
+            <Text style={quickCheckStyles.questionText}>
+              {currentQuestion.prompt}
+            </Text>
+          </View>
+
+          <View style={quickCheckStyles.optionList}>
+            {PHQ9_OPTIONS.map((option) => (
               <TouchableOpacity
-                key={option.level}
+                key={option.score}
                 accessibilityRole="button"
                 accessibilityLabel={`Select ${option.label}`}
                 style={[
-                  quickCheckStyles.energyOption,
-                  selectedEnergy === option.level
-                    ? quickCheckStyles.energyOptionSelected
+                  quickCheckStyles.optionButton,
+                  selectedScore === option.score
+                    ? quickCheckStyles.optionButtonSelected
                     : null,
                 ]}
-                onPress={() => handleEnergySelect(option.level)}
+                onPress={() => handleAnswer(option.score)}
               >
-                <Text style={quickCheckStyles.energyEmoji}>{option.emoji}</Text>
-                <Text style={quickCheckStyles.energyLabel}>{option.label}</Text>
+                <View style={quickCheckStyles.optionBadge}>
+                  <Text style={quickCheckStyles.optionBadgeText}>
+                    {option.score}
+                  </Text>
+                </View>
+                <Text style={quickCheckStyles.optionText}>{option.label}</Text>
               </TouchableOpacity>
             ))}
           </View>
+
+          <Text style={quickCheckStyles.scaleHint}>
+            StudentLife used PHQ-9 with a 0 to 3 scale (not at all to nearly
+            every day).
+          </Text>
         </View>
       ) : null}
 
-      {step === 2 ? (
+      {completedAssessment ? (
         <View style={quickCheckStyles.successWrap}>
           <View style={globalStyles.mascotCircleLg}>
-            <Text style={globalStyles.mascotEmojiLg}>😺</Text>
+            <Text style={globalStyles.mascotEmojiLg}>{"\uD83D\uDE3A"}</Text>
           </View>
 
           <Text style={[globalStyles.heading, quickCheckStyles.successTitle]}>
-            Thanks — logged! ✨
+            PHQ-9 Complete
           </Text>
           <Text style={[globalStyles.body, quickCheckStyles.successSubtitle]}>
-            Here's a tiny cat hug 😸
+            Score {completedAssessment.score}/{PHQ9_MAX_SCORE} |{" "}
+            {getPhq9SeverityLabel(completedAssessment.severity)}
           </Text>
 
           <View style={quickCheckStyles.infoBox}>
             <Text style={[globalStyles.body, quickCheckStyles.infoText]}>
-              Your check-in has been saved. Keep it up! Every check-in helps us
-              understand your wellbeing better.
+              {severitySummary}
             </Text>
           </View>
 
+          {(completedAssessment.answers[8] ?? 0) > 0 ? (
+            <View style={quickCheckStyles.alertBox}>
+              <Text style={quickCheckStyles.alertText}>
+                If you may hurt yourself or feel unsafe, contact local
+                emergency services right now.
+              </Text>
+            </View>
+          ) : null}
+
           <TouchableOpacity
             accessibilityRole="button"
-            accessibilityLabel="View history"
+            accessibilityLabel="View wellbeing score"
             style={quickCheckStyles.primaryButton}
-            onPress={() => navigation.navigate("Tabs", { screen: "History" })}
+            onPress={() => navigation.navigate("Tabs", { screen: "Wellbeing" })}
           >
-            <Text style={quickCheckStyles.primaryButtonText}>View History ✓</Text>
+            <Text style={quickCheckStyles.primaryButtonText}>
+              View Wellbeing
+            </Text>
           </TouchableOpacity>
 
           <TouchableOpacity

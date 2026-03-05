@@ -1,9 +1,5 @@
-import { Dimensions, StyleSheet } from "react-native";
+import { StyleSheet } from "react-native";
 import theme from "../theme/theme";
-
-const screenWidth = Dimensions.get("window").width;
-const moodCardWidth =
-  (screenWidth - theme.spacing.lg * 2 - theme.spacing.sm) / 2;
 
 export default StyleSheet.create({
   content: {
@@ -17,42 +13,6 @@ export default StyleSheet.create({
     flex: 1,
     gap: theme.spacing.md,
   },
-  title: {
-    color: theme.colors.textPrimary,
-    lineHeight: 34,
-  },
-  subtitle: {
-    color: theme.colors.textSecondary,
-  },
-  moodCard: {
-    width: moodCardWidth,
-    borderRadius: theme.radii.lg,
-    height: 100,
-    alignItems: "center",
-    justifyContent: "center",
-    gap: theme.spacing.xs,
-  },
-  happyCard: {
-    backgroundColor: theme.colors.moodHappy,
-  },
-  goodCard: {
-    backgroundColor: theme.colors.moodGood,
-  },
-  okayCard: {
-    backgroundColor: theme.colors.moodOkay,
-  },
-  sadCard: {
-    backgroundColor: theme.colors.moodSad,
-  },
-  moodEmoji: {
-    fontSize: 36,
-  },
-  moodLabel: {
-    fontSize: 14,
-    fontWeight: "600",
-    color: theme.colors.textPrimary,
-    fontFamily: theme.typography.fontFamilyPrimary,
-  },
   backButton: {
     alignSelf: "flex-start",
     minHeight: theme.touch.minSize,
@@ -64,31 +24,80 @@ export default StyleSheet.create({
     color: theme.colors.textPrimary,
     fontFamily: theme.typography.fontFamilyDisplay,
   },
-  energyOptions: {
+  title: {
+    color: theme.colors.textPrimary,
+    lineHeight: 34,
+  },
+  subtitle: {
+    color: theme.colors.textSecondary,
+  },
+  questionCard: {
+    backgroundColor: theme.colors.surface,
+    borderRadius: theme.radii.lg,
+    padding: theme.spacing.lg,
     gap: theme.spacing.sm,
   },
-  energyOption: {
-    backgroundColor: theme.colors.surface,
-    borderRadius: theme.radii.md,
-    padding: theme.spacing.md,
-    borderWidth: 1,
-    borderColor: theme.colors.backgroundAlt,
-    flexDirection: "row",
-    alignItems: "center",
-    gap: theme.spacing.md,
-  },
-  energyOptionSelected: {
-    borderWidth: 2,
-    borderColor: theme.colors.primary,
-  },
-  energyEmoji: {
-    fontSize: 24,
-  },
-  energyLabel: {
-    fontSize: theme.typography.sizes.body,
-    color: theme.colors.textPrimary,
+  questionLabel: {
+    fontSize: theme.typography.sizes.small,
+    color: theme.colors.muted,
     fontFamily: theme.typography.fontFamilyPrimary,
     fontWeight: "600",
+    textTransform: "uppercase",
+    letterSpacing: 0.8,
+  },
+  questionText: {
+    fontSize: theme.typography.sizes.h3,
+    color: theme.colors.textPrimary,
+    fontFamily: theme.typography.fontFamilyPrimary,
+    lineHeight: 28,
+    fontWeight: "600",
+  },
+  optionList: {
+    gap: theme.spacing.sm,
+  },
+  optionButton: {
+    backgroundColor: theme.colors.surface,
+    borderRadius: theme.radii.md,
+    borderWidth: 1,
+    borderColor: theme.colors.backgroundAlt,
+    paddingHorizontal: theme.spacing.md,
+    minHeight: 56,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: theme.spacing.sm,
+  },
+  optionButtonSelected: {
+    borderWidth: 2,
+    borderColor: theme.colors.primary,
+    backgroundColor: theme.colors.cardSoft,
+  },
+  optionBadge: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    backgroundColor: theme.colors.backgroundAlt,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  optionBadgeText: {
+    color: theme.colors.textPrimary,
+    fontSize: theme.typography.sizes.small,
+    fontFamily: theme.typography.fontFamilyDisplay,
+    fontWeight: "700",
+  },
+  optionText: {
+    color: theme.colors.textPrimary,
+    fontSize: theme.typography.sizes.body,
+    fontFamily: theme.typography.fontFamilyPrimary,
+    fontWeight: "600",
+    flex: 1,
+  },
+  scaleHint: {
+    color: theme.colors.muted,
+    fontSize: theme.typography.sizes.small,
+    fontFamily: theme.typography.fontFamilyPrimary,
+    lineHeight: 20,
+    marginTop: theme.spacing.xs,
   },
   successWrap: {
     flex: 1,
@@ -107,11 +116,28 @@ export default StyleSheet.create({
     backgroundColor: theme.colors.backgroundAlt,
     borderRadius: theme.radii.md,
     padding: theme.spacing.md,
+    width: "100%",
   },
   infoText: {
     textAlign: "center",
     color: theme.colors.textSecondary,
     lineHeight: 22,
+  },
+  alertBox: {
+    backgroundColor: theme.colors.emergencySoft,
+    borderRadius: theme.radii.md,
+    borderWidth: 1,
+    borderColor: theme.colors.danger,
+    padding: theme.spacing.md,
+    width: "100%",
+  },
+  alertText: {
+    color: theme.colors.danger,
+    textAlign: "center",
+    fontSize: theme.typography.sizes.body,
+    fontFamily: theme.typography.fontFamilyPrimary,
+    lineHeight: 22,
+    fontWeight: "600",
   },
   primaryButton: {
     borderRadius: theme.radii.pill,

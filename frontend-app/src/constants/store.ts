@@ -11,5 +11,6 @@ export const initialState: AppState = {
   history: [],
   score: 70,
   notificationResponses: [],
+  phq9History: [],
   hasOnboarded: false,
 };

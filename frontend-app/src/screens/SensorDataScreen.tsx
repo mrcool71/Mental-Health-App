@@ -1,6 +1,8 @@
 import React from "react";
 import { Switch, Text, View } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import ScreenScrollView from "../components/ScreenScrollView";
+import { TAB_BAR_HEIGHT } from "../constants/navigation";
 import { useStore } from "../store";
 import globalStyles from "../styles/global.styles";
 import s from "../styles/sensorData.styles";
@@ -63,10 +65,13 @@ const SensorDataScreen: React.FC<BottomTabScreenProps<"SensorData">> = () => {
   const accelOn = sensors.enabled.accelerometer || sensors.backgroundSensorsEnabled;
   const micOn = sensors.enabled.microphone || sensors.backgroundSensorsEnabled;
 
+  const insets = useSafeAreaInsets();
+  const bottomPad = TAB_BAR_HEIGHT + theme.spacing.md + insets.bottom;
+
   return (
     <ScreenScrollView
       accessibilityLabel="Sensor data screen"
-      contentContainerStyle={s.content}
+      contentContainerStyle={[s.content, { paddingBottom: bottomPad }]}
     >
       <Text style={globalStyles.heading}>Sensor Data</Text>
 

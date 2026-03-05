@@ -5,7 +5,6 @@ export default StyleSheet.create({
   content: {
     paddingHorizontal: theme.spacing.lg,
     paddingTop: theme.spacing.lg,
-    paddingBottom: theme.spacing.xl * 3,
     gap: theme.spacing.md,
   },
   card: {

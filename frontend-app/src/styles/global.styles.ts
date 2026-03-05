@@ -10,7 +10,7 @@ export default StyleSheet.create({
   scrollContent: {
     paddingHorizontal: theme.spacing.lg,
     paddingTop: theme.spacing.lg,
-    paddingBottom: theme.spacing.xl * 2,
+    paddingBottom: 80,
     gap: theme.spacing.md,
   },
 

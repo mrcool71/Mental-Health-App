@@ -6,6 +6,7 @@ export default StyleSheet.create({
   filterTabs: {
     gap: theme.spacing.sm,
     paddingVertical: theme.spacing.md,
+    paddingHorizontal: theme.spacing.lg,
   },
   filterPill: {
     borderRadius: theme.radii.pill,
@@ -38,7 +39,8 @@ export default StyleSheet.create({
     flex: 1,
   },
   listContent: {
-    paddingBottom: theme.spacing.xl,
+    paddingHorizontal: theme.spacing.lg,
+    paddingBottom: 80,
     gap: theme.spacing.sm,
   },
 
@@ -56,6 +58,17 @@ export default StyleSheet.create({
     color: theme.colors.textSecondary,
     textTransform: "uppercase",
     letterSpacing: 0.8,
+  },
+
+  // Subtle list item (replaces the card/bar look)
+  historyItem: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingVertical: theme.spacing.sm,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderBottomColor: theme.colors.backgroundAlt,
+    gap: theme.spacing.sm,
   },
 
   // Item meta

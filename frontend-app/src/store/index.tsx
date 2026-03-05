@@ -275,7 +275,6 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({
       setMicrophoneReading,
      
       reset,
-   ,
     }),
     [state],
   );

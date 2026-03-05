@@ -28,7 +28,7 @@ export default function BottomTabs() {
         options={{ tabBarLabel: "Score" }}
       />
       <Tab.Screen name="History" component={HistoryScreen} />
-      <Tab.Screen name="Resources" component={ResourcesScreen} />
+      <Tab.Screen name="Resources" component={ResourcesScreen} options={{ tabBarLabel: "Library" }} />
       <Tab.Screen
         name="SensorData"
         component={SensorDataScreen}

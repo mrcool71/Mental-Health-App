@@ -9,8 +9,10 @@ import {
   type SectionListRenderItemInfo,
 } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import MoodBadge from "../components/MoodBadge";
 import { HISTORY_FILTER_OPTIONS, ENERGY_LEVELS } from "../constants/history";
+import { TAB_BAR_HEIGHT } from "../constants/navigation";
 import { useStore } from "../store";
 import globalStyles from "../styles/global.styles";
 import styles from "../styles/history.styles";
@@ -45,9 +47,14 @@ const HistoryScreen: React.FC<BottomTabScreenProps<"History">> = () => {
     return Object.entries(grouped).map(([title, data]) => ({ title, data }));
   }, [filteredHistory]);
 
+  const insets = useSafeAreaInsets();
+  const listBottomPad = TAB_BAR_HEIGHT + insets.bottom + theme.spacing.md;
+
   return (
     <View style={globalStyles.screen} accessibilityLabel="History screen">
-      <Text style={globalStyles.heading}>History</Text>
+      <View style={{ paddingHorizontal: theme.spacing.lg }}>
+        <Text style={globalStyles.heading}>History</Text>
+      </View>
 
       <ScrollView
         horizontal
@@ -85,7 +92,7 @@ const HistoryScreen: React.FC<BottomTabScreenProps<"History">> = () => {
 
       <SectionList<MoodEntry, HistorySection>
         style={styles.list}
-        contentContainerStyle={styles.listContent}
+        contentContainerStyle={[styles.listContent, { paddingBottom: listBottomPad }]}
         sections={sections}
         keyExtractor={(item: MoodEntry) => item.id}
         showsVerticalScrollIndicator={false}
@@ -115,7 +122,7 @@ const HistoryScreen: React.FC<BottomTabScreenProps<"History">> = () => {
           item,
         }: SectionListRenderItemInfo<MoodEntry, HistorySection>) => (
           <View
-            style={globalStyles.listItem}
+            style={styles.historyItem}
             accessibilityLabel={`Mood ${item.mood} at ${formatTime(item.timestamp)}`}
           >
             <MoodBadge mood={item.mood} label={item.mood} />

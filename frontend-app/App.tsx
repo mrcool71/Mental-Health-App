@@ -49,7 +49,7 @@ async function initNotifications() {
 }
 
 export default function App() {
-  useFonts({
+  const [fontsLoaded, fontsError] = useFonts({
     // Load MaterialIcons for @expo/vector-icons (required in dev-client builds)
     // eslint-disable-next-line @typescript-eslint/no-require-imports
     MaterialIcons: require("@expo/vector-icons/build/vendor/react-native-vector-icons/Fonts/MaterialIcons.ttf"),
@@ -58,6 +58,9 @@ export default function App() {
   useEffect(() => {
     initNotifications().catch(console.error);
   }, []);
+
+  // Wait for fonts, but never block if loading errored — avoids permanent white screen.
+  if (!fontsLoaded && !fontsError) return null;
 
   return (
     <SafeAreaProvider>

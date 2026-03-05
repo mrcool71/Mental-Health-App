@@ -56,8 +56,8 @@ function TabBarItem({
         }).start()
       }
     >
-      <View>
-        <MaterialIcons name={iconName as any} size={24} color={color} />
+      <View style={styles.iconWrap}>
+        <MaterialIcons name={iconName as any} size={22} color={color} />
         {routeName === "History" && showBadge ? <View style={styles.badgeDot} /> : null}
       </View>
       <Text style={[styles.label, { color }]} numberOfLines={1} ellipsizeMode="tail">{label}</Text>

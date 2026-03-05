@@ -10,8 +10,8 @@ import {
 } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import MoodBadge from "../components/MoodBadge";
 import { HISTORY_FILTER_OPTIONS, ENERGY_LEVELS } from "../constants/history";
+import { MOOD_COLORS, moodEmoji } from "../constants/moods";
 import { TAB_BAR_HEIGHT } from "../constants/navigation";
 import { useStore } from "../store";
 import globalStyles from "../styles/global.styles";
@@ -125,21 +125,22 @@ const HistoryScreen: React.FC<BottomTabScreenProps<"History">> = () => {
             style={styles.historyItem}
             accessibilityLabel={`Mood ${item.mood} at ${formatTime(item.timestamp)}`}
           >
-            <MoodBadge mood={item.mood} label={item.mood} />
-
-            <View style={styles.itemMetaWrap}>
-              <Text style={globalStyles.listMeta}>
-                {formatTime(item.timestamp)}
-              </Text>
-              {item.energy ? (
-                <View style={styles.energyPill}>
-                  <Text style={styles.energyPillText}>
-                    {ENERGY_LEVELS[item.energy].emoji}{" "}
-                    {ENERGY_LEVELS[item.energy].label}
-                  </Text>
-                </View>
-              ) : null}
+            <View style={[styles.moodDot, { backgroundColor: MOOD_COLORS[item.mood] }]}>
+              <Text style={styles.moodDotEmoji}>{moodEmoji[item.mood]}</Text>
             </View>
+
+            <View style={styles.historyItemBody}>
+              <Text style={styles.historyMoodLabel}>{item.mood}</Text>
+              <Text style={styles.historyItemTime}>{formatTime(item.timestamp)}</Text>
+            </View>
+
+            {item.energy ? (
+              <View style={styles.energyPill}>
+                <Text style={styles.energyPillText}>
+                  {ENERGY_LEVELS[item.energy].emoji} {ENERGY_LEVELS[item.energy].label}
+                </Text>
+              </View>
+            ) : null}
           </View>
         )}
       />

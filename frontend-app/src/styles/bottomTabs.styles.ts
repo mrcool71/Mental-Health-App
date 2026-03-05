@@ -33,9 +33,13 @@ export default StyleSheet.create({
     minHeight: theme.touch.minSize,
     alignItems: "center",
     justifyContent: "center",
-    flexDirection: "column",
     gap: 3,
-    paddingBottom: theme.spacing.xs,
+  },
+  iconWrap: {
+    width: 24,
+    height: 24,
+    alignItems: "center",
+    justifyContent: "center",
   },
   label: {
     fontFamily: theme.typography.fontFamilyPrimary,

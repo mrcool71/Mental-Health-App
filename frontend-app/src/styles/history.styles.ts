@@ -60,18 +60,44 @@ export default StyleSheet.create({
     letterSpacing: 0.8,
   },
 
-  // Subtle list item (replaces the card/bar look)
+  // Subtle list item
   historyItem: {
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "space-between",
     paddingVertical: theme.spacing.sm,
     borderBottomWidth: StyleSheet.hairlineWidth,
     borderBottomColor: theme.colors.backgroundAlt,
     gap: theme.spacing.sm,
   },
+  moodDot: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    alignItems: "center",
+    justifyContent: "center",
+    flexShrink: 0,
+  },
+  moodDotEmoji: {
+    fontSize: 18,
+  },
+  historyItemBody: {
+    flex: 1,
+    gap: 2,
+  },
+  historyMoodLabel: {
+    fontFamily: theme.typography.fontFamilyPrimary,
+    fontSize: theme.typography.sizes.small,
+    color: theme.colors.textPrimary,
+    textTransform: "capitalize",
+    fontWeight: "600",
+  },
+  historyItemTime: {
+    fontFamily: theme.typography.fontFamilyPrimary,
+    fontSize: theme.typography.sizes.small,
+    color: theme.colors.textSecondary,
+  },
 
-  // Item meta
+  // Item meta (kept for energyPill alignment)
   itemMetaWrap: {
     alignItems: "flex-end",
     gap: theme.spacing.xs,

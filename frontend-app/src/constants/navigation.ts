@@ -7,6 +7,7 @@ export const TAB_ICONS: Record<string, string> = {
   Home: "home",
   Wellbeing: "favorite",
   History: "history",
+  SensorData: "sensors",
   Resources: "menu-book",
   Profile: "person",
 };

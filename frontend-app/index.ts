@@ -2,6 +2,8 @@ import { registerRootComponent } from "expo";
 import notifee, { EventType } from "@notifee/react-native";
 import { saveNotificationResponse } from "./src/utilities/notificationStorage";
 import { parseNotificationAction } from "./src/utilities/parseNotificationAction";
+import "./src/services/sensors/backgroundLocationTask";
+import "./src/services/sensors/sensorForegroundService";
 import App from "./App";
 
 // Background handler — must be registered before registerRootComponent.

@@ -14,7 +14,6 @@ import {
   buildNotificationPayload,
 } from "../utilities/questionHelpers";
 
-
 export async function setupNotificationChannel(): Promise<void> {
   if (Platform.OS !== "android") return;
   await notifee.createChannel({
@@ -48,9 +47,7 @@ export async function requestNotificationPermission(): Promise<boolean> {
   return settings.authorizationStatus >= 1;
 }
 
-/** Cancels old check-in notifications, then schedules 2/day for the next 30 days. */
 export async function scheduleNotifications(): Promise<void> {
-  // 1. Cancel previous batch
   const existing = await notifee.getTriggerNotifications();
   await Promise.all(
     existing
@@ -58,10 +55,8 @@ export async function scheduleNotifications(): Promise<void> {
       .map((n) => notifee.cancelTriggerNotification(n.notification.id!)),
   );
 
-  // 2. Build the list of questions + timestamps
   const batch = buildDailyQuestionBatch();
 
-  // 3. Schedule each one
   await Promise.all(
     batch.map((item) => {
       const trigger: TimestampTrigger = {

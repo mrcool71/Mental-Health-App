@@ -13,4 +13,18 @@ export const initialState: AppState = {
   notificationResponses: [],
   phq9History: [],
   hasOnboarded: false,
+  sensors: {
+    enabled: {
+      location: false,
+      accelerometer: false,
+      microphone: false,
+    },
+    backgroundLocationEnabled: false,
+    backgroundSensorsEnabled: false,
+    permissions: {
+      location: "undetermined",
+      microphone: "undetermined",
+    },
+    errors: {},
+  },
 };

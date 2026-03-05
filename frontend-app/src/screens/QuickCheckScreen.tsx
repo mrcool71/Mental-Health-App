@@ -25,6 +25,7 @@ const QuickCheckScreen: React.FC<RootStackScreenProps<"QuickCheck">> = ({
   );
   const [completedAssessment, setCompletedAssessment] =
     useState<Phq9Assessment | null>(null);
+  const isSubmittingRef = useRef<boolean>(false);
 
   const progressAnim = useRef<Animated.Value>(
     new Animated.Value(1 / PHQ9_QUESTIONS.length),
@@ -95,6 +96,10 @@ const QuickCheckScreen: React.FC<RootStackScreenProps<"QuickCheck">> = ({
   };
 
   const handleAnswer = (score: number) => {
+    if (isSubmittingRef.current || completedAssessment) {
+      return;
+    }
+
     const nextAnswers = [...answers];
     nextAnswers[questionIndex] = score;
     setAnswers(nextAnswers);
@@ -104,6 +109,7 @@ const QuickCheckScreen: React.FC<RootStackScreenProps<"QuickCheck">> = ({
       return;
     }
 
+    isSubmittingRef.current = true;
     finalizeAssessment(nextAnswers);
   };
 
@@ -161,6 +167,7 @@ const QuickCheckScreen: React.FC<RootStackScreenProps<"QuickCheck">> = ({
                 key={option.score}
                 accessibilityRole="button"
                 accessibilityLabel={`Select ${option.label}`}
+                disabled={isSubmittingRef.current}
                 style={[
                   quickCheckStyles.optionButton,
                   selectedScore === option.score

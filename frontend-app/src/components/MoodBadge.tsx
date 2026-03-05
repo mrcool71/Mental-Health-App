@@ -1,6 +1,6 @@
 import React from "react";
 import { Text, View } from "react-native";
-import styles from "../styles/badge.styles";
+import { badgeStyles as styles } from "../styles/avatar.styles";
 import { MoodBadgeProps } from "../types/ui";
 import { moodEmoji } from "../constants/moods";
 

@@ -1,5 +1,3 @@
-import { Mood, MoodEntry } from "./models";
-
 export type TabBarItemProps = {
   routeName: string;
   label: string;
@@ -10,16 +8,4 @@ export type TabBarItemProps = {
   testID?: string;
   onPress: () => void;
   onLongPress: () => void;
-};
-
-export type PieSegment = {
-  mood: Mood;
-  value: number;
-  color: string;
-};
-
-export type WellbeingPieChartProps = {
-  entries: MoodEntry[];
-  size?: number;
-  strokeWidth?: number;
 };

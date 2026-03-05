@@ -21,10 +21,14 @@ export default function BottomTabs() {
       tabBar={(props: BottomTabBarProps) => <BottomTabBar {...props} />}
     >
       <Tab.Screen name="Home" component={HomeScreen} />
-      <Tab.Screen name="Wellbeing" component={WellbeingScreen} />
+      <Tab.Screen
+        name="Wellbeing"
+        component={WellbeingScreen}
+        options={{ tabBarLabel: "Score" }}
+      />
       <Tab.Screen name="History" component={HistoryScreen} />
-      <Tab.Screen name="Profile" component={ProfileScreen} />
       <Tab.Screen name="Resources" component={ResourcesScreen} />
+      <Tab.Screen name="Profile" component={ProfileScreen} />
     </Tab.Navigator>
   );
 }

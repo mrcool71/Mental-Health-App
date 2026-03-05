@@ -1,0 +1,144 @@
+{
+  "questions": [
+    {
+      "id": 1,
+      "question": "How often do you laugh in a day?",
+      "options": ["Many times", "Few times", "Rarely", "Never"]
+    },
+    {
+      "id": 2,
+      "question": "When you face a problem, how do you react first?",
+      "options": [
+        "Calmly think",
+        "Slightly stressed",
+        "Panic first",
+        "Avoid it"
+      ]
+    },
+    {
+      "id": 3,
+      "question": "How often do you feel overloaded with tasks?",
+      "options": ["Rarely", "Sometimes", "Often", "Always"]
+    },
+    {
+      "id": 4,
+      "question": "If plans are canceled, how do you feel?",
+      "options": ["Fine", "Slightly sad", "Very upset", "Restless"]
+    },
+    {
+      "id": 5,
+      "question": "How easily do you make new friends?",
+      "options": ["Very easily", "With effort", "Hard", "Never"]
+    },
+    {
+      "id": 6,
+      "question": "How often do you feel grateful?",
+      "options": ["Daily", "Few times/week", "Rarely", "Never"]
+    },
+    {
+      "id": 7,
+      "question": "How do you take criticism?",
+      "options": ["Positively", "Think later", "Hurt", "Take personally"]
+    },
+    {
+      "id": 8,
+      "question": "Do you feel anxious without reason?",
+      "options": ["Never", "Sometimes", "Often", "Very often"]
+    },
+    {
+      "id": 9,
+      "question": "When did you last do something fun?",
+      "options": ["Today", "This week", "This month", "Can't recall"]
+    },
+    {
+      "id": 10,
+      "question": "How do you feel on waking up?",
+      "options": ["Excited", "Neutral", "Tired", "Dreadful"]
+    },
+    {
+      "id": 11,
+      "question": "If free for 30 mins, what would you do?",
+      "options": [
+        "Relax activity",
+        "Catch up tasks",
+        "Scroll phone",
+        "Overthink"
+      ]
+    },
+    {
+      "id": 12,
+      "question": "Can you focus long on studies/work?",
+      "options": ["Very easy", "Manageable", "Hard", "Impossible"]
+    },
+    {
+      "id": 13,
+      "question": "Do you feel lonely in crowds?",
+      "options": ["Rarely", "Sometimes", "Often", "Always"]
+    },
+    {
+      "id": 14,
+      "question": "How do you cope with stress?",
+      "options": [
+        "Healthy activity",
+        "Talk to friends",
+        "Distract self",
+        "Bottle up"
+      ]
+    },
+    {
+      "id": 15,
+      "question": "How confident are you in your abilities?",
+      "options": ["Always", "Often", "Sometimes", "Rarely"]
+    },
+    {
+      "id": 16,
+      "question": "When you fail, what do you think?",
+      "options": ["Try again", "Learn from it", "Not good enough", "Why try?"]
+    },
+    {
+      "id": 17,
+      "question": "Do you daydream or imagine often?",
+      "options": ["Daily", "Few times/week", "Rarely", "Never"]
+    },
+    {
+      "id": 18,
+      "question": "Can you relax and do nothing?",
+      "options": ["Easy", "Sometimes", "Hard", "Impossible"]
+    },
+    {
+      "id": 19,
+      "question": "Do you compare yourself to others?",
+      "options": ["Rarely", "Sometimes", "Often", "Always"]
+    },
+    {
+      "id": 20,
+      "question": "How do you feel after socializing?",
+      "options": ["Energized", "Content", "Neutral", "Drained"]
+    },
+    {
+      "id": 21,
+      "question": "Do you feel proud of your achievements?",
+      "options": ["Always", "Often", "Sometimes", "Rarely"]
+    },
+    {
+      "id": 22,
+      "question": "How do you see your future?",
+      "options": ["Hopeful", "Optimistic", "Worried", "Hopeless"]
+    },
+    {
+      "id": 23,
+      "question": "If someone jokes about you, reaction?",
+      "options": ["Laugh", "Smile awkwardly", "Hurt", "Upset"]
+    },
+    {
+      "id": 24,
+      "question": "How often do you take short breaks?",
+      "options": ["Daily", "Few times/week", "Rarely", "Never"]
+    },
+    {
+      "id": 25,
+      "question": "How is your current mental state?",
+      "options": ["Happy", "Okay", "Struggling", "Low"]
+    }
+  ]
+}

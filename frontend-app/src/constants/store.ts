@@ -10,4 +10,6 @@ export const moodScores: Record<Mood, number> = {
 export const initialState: AppState = {
   history: [],
   score: 70,
+  notificationResponses: [],
+  hasOnboarded: false,
 };

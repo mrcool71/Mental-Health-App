@@ -1,24 +1,30 @@
 // Design tokens live here; components/styles must import from this module.
-// Updated to match warm orange/cream/plum design system
 
 export const colors = {
-  background: "#fcfcfc", // very light warm grey (page background)
-  backgroundAlt: "#FFF6F1", // alternate soft peach background (alias for cardSoft)
-  surface: "#FFFFFF", // white cards & header
-  cardSoft: "#FFF6F1", // soft peach card background
-  primary: "#FF7A2D", // warm orange (icons, CTA)
-  accent: "#FF9C62", // lighter orange accent
-  accentAlt: "#FFD4B3", // lighter orange tint
-  lilac: "#E6D5FF", // soft lilac for variety
-  plum: "#3B1F2E", // deep plum for headings & important text
-  muted: "#A8A4A4", // muted grey text
-  textPrimary: "#3B1F2E", // same as plum for consistency
-  textSecondary: "#A8A4A4", // same as muted
+  background: "#F5F0E8", // warm cream page background
+  backgroundAlt: "#EDE8DF", // slightly darker cream for alt areas
+  surface: "#FFFFFF", // white cards
+  cardSoft: "#EFF9F7", // soft mint tint for highlighted cards
+  primary: "#4ECDC4", // teal/mint main CTA color
+  accent: "#81E6D9", // lighter teal accent
+  accentAlt: "#B2F0EB", // very light teal tint
+  lilac: "#E6D5FF", // keep as-is
+  plum: "#1A3C34", // deep green-plum for headings
+  muted: "#8A9E9B", // muted teal-grey text
+  textPrimary: "#1A3C34", // same as plum
+  textSecondary: "#8A9E9B", // same as muted
   white: "#FFFFFF",
   black: "#000000",
-  success: "#2E9B67", // green card
-  danger: "#E85B3A", // red-ish
-  shadow: "rgba(45, 30, 30, 0.06)", // subtle shadow
+  success: "#4ECDC4", // use teal for success
+  danger: "#FF6B6B", // soft red
+  shadow: "rgba(26, 60, 52, 0.08)",
+  quoteCard: "#EFF9F7", // soft mint for quote card
+  checkinCard: "#4ECDC4", // teal for the quick check-in card
+  moodHappy: "#FFF3E0",
+  moodGood: "#E8F5E9",
+  moodOkay: "#FFF9C4",
+  moodSad: "#FCE4EC",
+  emergencySoft: "#FFF5F5",
 };
 
 export const spacing = {

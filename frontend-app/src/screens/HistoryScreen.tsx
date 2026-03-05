@@ -1,53 +1,99 @@
-import React, { useMemo } from "react";
+import React, { useMemo, useState } from "react";
 import {
+  ScrollView,
   SectionList,
   Text,
+  TouchableOpacity,
   View,
   type SectionListData,
   type SectionListRenderItemInfo,
 } from "react-native";
-import globalStyles from "../styles/global.styles";
-import screenStyles from "../styles/screen.styles";
+import { MaterialIcons } from "@expo/vector-icons";
 import MoodBadge from "../components/MoodBadge";
+import { HISTORY_FILTER_OPTIONS, ENERGY_LEVELS } from "../constants/history";
 import { useStore } from "../store";
-import { MoodEntry } from "../types/models";
+import globalStyles from "../styles/global.styles";
+import styles from "../styles/history.styles";
+import theme from "../theme/theme";
+import { Mood, MoodEntry } from "../types/models";
 import { BottomTabScreenProps } from "../types/navigation";
-import type { HistorySection } from "../types/screens";
-import { SCREEN_TITLES } from "../constants/screens";
+import { HistorySection } from "../types/screens";
+import { formatTime } from "../utilities";
 
 const HistoryScreen: React.FC<BottomTabScreenProps<"History">> = () => {
   const { state } = useStore();
+  const [filter, setFilter] = useState<Mood | "all">("all");
 
-  const sections = useMemo(() => {
+  const filteredHistory = useMemo<MoodEntry[]>(() => {
+    if (filter === "all") {
+      return state.history;
+    }
+    return state.history.filter((entry) => entry.mood === filter);
+  }, [filter, state.history]);
+
+  const sections = useMemo<HistorySection[]>(() => {
     const grouped: Record<string, MoodEntry[]> = {};
-    state.history.forEach((entry) => {
+
+    filteredHistory.forEach((entry) => {
       const dateKey = new Date(entry.timestamp).toDateString();
-      grouped[dateKey] = grouped[dateKey]
-        ? [...grouped[dateKey], entry]
-        : [entry];
+      if (!grouped[dateKey]) {
+        grouped[dateKey] = [];
+      }
+      grouped[dateKey].push(entry);
     });
+
     return Object.entries(grouped).map(([title, data]) => ({ title, data }));
-  }, [state.history]);
+  }, [filteredHistory]);
 
   return (
-    <View
-      style={globalStyles.screen}
-      accessible
-      accessibilityLabel="History screen"
-    >
-      <Text style={globalStyles.heading}>{SCREEN_TITLES.history}</Text>
+    <View style={globalStyles.screen} accessibilityLabel="History screen">
+      <Text style={globalStyles.heading}>History</Text>
+
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        contentContainerStyle={styles.filterTabs}
+        accessibilityLabel="History mood filters"
+      >
+        {HISTORY_FILTER_OPTIONS.map((item) => {
+          const isActive = filter === item.value;
+          return (
+            <TouchableOpacity
+              key={item.value}
+              accessibilityRole="button"
+              accessibilityLabel={`Filter ${item.label}`}
+              style={[
+                styles.filterPill,
+                isActive ? styles.filterPillActive : styles.filterPillInactive,
+              ]}
+              onPress={() => setFilter(item.value)}
+            >
+              <Text
+                style={[
+                  styles.filterPillText,
+                  isActive
+                    ? styles.filterPillTextActive
+                    : styles.filterPillTextInactive,
+                ]}
+              >
+                {item.label}
+              </Text>
+            </TouchableOpacity>
+          );
+        })}
+      </ScrollView>
+
       <SectionList<MoodEntry, HistorySection>
-        style={globalStyles.screen}
-        contentContainerStyle={screenStyles.content}
+        style={styles.list}
+        contentContainerStyle={styles.listContent}
         sections={sections}
         keyExtractor={(item: MoodEntry) => item.id}
-        accessible
-        accessibilityLabel="History list"
+        showsVerticalScrollIndicator={false}
         ListEmptyComponent={() => (
-          <View style={screenStyles.section}>
-            <Text style={globalStyles.subheading}>{"No history yet"}</Text>
+          <View style={globalStyles.section}>
+            <Text style={globalStyles.subheading}>No history yet</Text>
             <Text style={globalStyles.body}>
-              {"Complete a quick check to start your timeline."}
+              Complete a quick check to start your timeline.
             </Text>
           </View>
         )}
@@ -56,24 +102,37 @@ const HistoryScreen: React.FC<BottomTabScreenProps<"History">> = () => {
         }: {
           section: SectionListData<MoodEntry, HistorySection>;
         }) => (
-          <View style={screenStyles.section}>
-            <Text style={globalStyles.subheading}>{section.title}</Text>
+          <View style={styles.sectionHeaderRow}>
+            <MaterialIcons
+              name="event"
+              size={18}
+              color={theme.colors.textSecondary}
+            />
+            <Text style={styles.sectionHeaderText}>{section.title}</Text>
           </View>
         )}
         renderItem={({
           item,
         }: SectionListRenderItemInfo<MoodEntry, HistorySection>) => (
           <View
-            style={screenStyles.listItem}
-            accessibilityLabel={`Mood ${item.mood}`}
+            style={globalStyles.listItem}
+            accessibilityLabel={`Mood ${item.mood} at ${formatTime(item.timestamp)}`}
           >
             <MoodBadge mood={item.mood} label={item.mood} />
-            <Text style={screenStyles.listMeta}>
-              {new Date(item.timestamp).toLocaleTimeString([], {
-                hour: "2-digit",
-                minute: "2-digit",
-              })}
-            </Text>
+
+            <View style={styles.itemMetaWrap}>
+              <Text style={globalStyles.listMeta}>
+                {formatTime(item.timestamp)}
+              </Text>
+              {item.energy ? (
+                <View style={styles.energyPill}>
+                  <Text style={styles.energyPillText}>
+                    {ENERGY_LEVELS[item.energy].emoji}{" "}
+                    {ENERGY_LEVELS[item.energy].label}
+                  </Text>
+                </View>
+              ) : null}
+            </View>
           </View>
         )}
       />

@@ -2,6 +2,7 @@ import "react-native-gesture-handler";
 import React, { useEffect } from "react";
 import { StatusBar } from "expo-status-bar";
 import { SafeAreaProvider } from "react-native-safe-area-context";
+import { useFonts } from "expo-font";
 import notifee, { EventType } from "@notifee/react-native";
 import { StoreProvider, useStore } from "./src/store";
 import AppNavigator from "./src/navigation";
@@ -48,6 +49,12 @@ async function initNotifications() {
 }
 
 export default function App() {
+  useFonts({
+    // Load MaterialIcons for @expo/vector-icons (required in dev-client builds)
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    MaterialIcons: require("@expo/vector-icons/build/vendor/react-native-vector-icons/Fonts/MaterialIcons.ttf"),
+  });
+
   useEffect(() => {
     initNotifications().catch(console.error);
   }, []);

@@ -22,7 +22,7 @@ const HomeScreen: React.FC<BottomTabScreenProps<"Home">> = ({ navigation }) => {
 
   const greetingText = useMemo<string>(() => {
     const period = getGreetingByHour();
-    return `Good ${period}! 👋`;
+    return `Good ${period}`;
   }, []);
 
   const randomQuote = useMemo<string>(() => {
@@ -40,7 +40,7 @@ const HomeScreen: React.FC<BottomTabScreenProps<"Home">> = ({ navigation }) => {
           </Text>
         </View>
         <View style={globalStyles.mascotCircleSm}>
-          <Text style={globalStyles.mascotEmojiSm}>😺</Text>
+          <Text style={globalStyles.mascotEmojiSm}>{"\uD83D\uDE3A"}</Text>
         </View>
       </View>
 
@@ -50,35 +50,32 @@ const HomeScreen: React.FC<BottomTabScreenProps<"Home">> = ({ navigation }) => {
       </View>
 
       <View style={homeStyles.checkinCard}>
-        <Text style={homeStyles.checkinTitle}>
-          {"Ready for a quick\ncheck-in? 🐾"}
-        </Text>
+        <Text style={homeStyles.checkinTitle}>Ready for a PHQ-9 check-in?</Text>
         <Text style={[globalStyles.body, homeStyles.checkinSubtitle]}>
-          Take 30 seconds to log how you're feeling right now
+          Takes about 1 to 2 minutes. Answer 9 questions to log your recent
+          wellbeing.
         </Text>
 
         <View style={homeStyles.catStrip}>
           <View style={homeStyles.catStripRow}>
-            <Text style={homeStyles.catStripEmoji}>😺</Text>
-            <Text style={homeStyles.catStripEmoji}>😸</Text>
-            <Text style={homeStyles.catStripEmoji}>🐱</Text>
+            <Text style={homeStyles.catStripEmoji}>0-3 scale</Text>
           </View>
         </View>
 
         <TouchableOpacity
           accessibilityRole="button"
-          accessibilityLabel="Take quick check"
+          accessibilityLabel="Start PHQ-9 check-in"
           style={homeStyles.checkinButton}
           onPress={() => navigation.navigate("QuickCheck")}
         >
-          <Text style={homeStyles.checkinButtonText}>Take Quick Check ♡</Text>
+          <Text style={homeStyles.checkinButtonText}>Start PHQ-9</Text>
         </TouchableOpacity>
       </View>
 
       {latestEntry ? (
         <View style={homeStyles.latestRow}>
           <View>
-            <Text style={homeStyles.latestLabel}>Last check-in</Text>
+            <Text style={homeStyles.latestLabel}>Last assessment</Text>
             <MoodBadge mood={latestEntry.mood} label={latestEntry.mood} />
           </View>
 

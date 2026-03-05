@@ -67,7 +67,7 @@ export default StyleSheet.create({
     lineHeight: 22,
   },
   catStrip: {
-    height: 80,
+    height: 64,
     borderRadius: theme.radii.md,
     backgroundColor: theme.colors.accent,
     alignItems: "center",
@@ -80,7 +80,10 @@ export default StyleSheet.create({
     gap: theme.spacing.md,
   },
   catStripEmoji: {
-    fontSize: 30,
+    fontSize: theme.typography.sizes.body,
+    color: theme.colors.plum,
+    fontFamily: theme.typography.fontFamilyDisplay,
+    fontWeight: "700",
   },
   checkinButton: {
     alignSelf: "center",

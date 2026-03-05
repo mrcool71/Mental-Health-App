@@ -93,7 +93,7 @@ const HistoryScreen: React.FC<BottomTabScreenProps<"History">> = () => {
           <View style={globalStyles.section}>
             <Text style={globalStyles.subheading}>No history yet</Text>
             <Text style={globalStyles.body}>
-              Complete a quick check to start your timeline.
+              Complete a PHQ-9 check-in to start your timeline.
             </Text>
           </View>
         )}

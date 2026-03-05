@@ -21,16 +21,12 @@ export default function SensorCollector() {
   });
 
   useAccelerometerSensor({
-    // Background sensors already runs the accelerometer via foreground service;
-    // avoid double-subscribing.
-    enabled: state.sensors.enabled.accelerometer && !state.sensors.backgroundSensorsEnabled,
+    enabled: state.sensors.enabled.accelerometer,
     updateIntervalMs: 250,
   });
 
   useMicrophoneSampling({
-    // Background sensors already runs the mic loop inside the foreground service.
-    // Running both at once causes two concurrent MediaRecorders → native crash.
-    enabled: state.sensors.enabled.microphone && !state.sensors.backgroundSensorsEnabled,
+    enabled: state.sensors.enabled.microphone,
     meteringUpdateIntervalMs: 250,
     intervalMs: 120000,
     sampleDurationMs: 5000,

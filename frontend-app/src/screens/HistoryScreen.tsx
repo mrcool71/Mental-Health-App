@@ -1,6 +1,5 @@
 import React, { useMemo, useState } from "react";
 import {
-  ScrollView,
   SectionList,
   Text,
   TouchableOpacity,
@@ -52,16 +51,16 @@ const HistoryScreen: React.FC<BottomTabScreenProps<"History">> = () => {
 
   return (
     <View style={globalStyles.screen} accessibilityLabel="History screen">
-      <View style={{ paddingHorizontal: theme.spacing.lg }}>
+      {/* Header */}
+      <View style={styles.header}>
         <Text style={globalStyles.heading}>History</Text>
+        <Text style={styles.headerSub}>
+          {state.history.length} {state.history.length === 1 ? "entry" : "entries"}
+        </Text>
       </View>
 
-      <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        contentContainerStyle={styles.filterTabs}
-        accessibilityLabel="History mood filters"
-      >
+      {/* Filter chips */}
+      <View style={styles.filterRow}>
         {HISTORY_FILTER_OPTIONS.map((item) => {
           const isActive = filter === item.value;
           return (
@@ -70,17 +69,17 @@ const HistoryScreen: React.FC<BottomTabScreenProps<"History">> = () => {
               accessibilityRole="button"
               accessibilityLabel={`Filter ${item.label}`}
               style={[
-                styles.filterPill,
-                isActive ? styles.filterPillActive : styles.filterPillInactive,
+                styles.filterChip,
+                isActive ? styles.filterChipActive : styles.filterChipInactive,
               ]}
               onPress={() => setFilter(item.value)}
             >
               <Text
                 style={[
-                  styles.filterPillText,
+                  styles.filterChipText,
                   isActive
-                    ? styles.filterPillTextActive
-                    : styles.filterPillTextInactive,
+                    ? styles.filterChipTextActive
+                    : styles.filterChipTextInactive,
                 ]}
               >
                 {item.label}
@@ -88,18 +87,23 @@ const HistoryScreen: React.FC<BottomTabScreenProps<"History">> = () => {
             </TouchableOpacity>
           );
         })}
-      </ScrollView>
+      </View>
 
+      {/* Timeline list */}
       <SectionList<MoodEntry, HistorySection>
         style={styles.list}
         contentContainerStyle={[styles.listContent, { paddingBottom: listBottomPad }]}
         sections={sections}
         keyExtractor={(item: MoodEntry) => item.id}
         showsVerticalScrollIndicator={false}
+        stickySectionHeadersEnabled={false}
         ListEmptyComponent={() => (
-          <View style={globalStyles.section}>
-            <Text style={globalStyles.subheading}>No history yet</Text>
-            <Text style={globalStyles.body}>
+          <View style={styles.emptyWrap}>
+            <View style={styles.emptyCircle}>
+              <MaterialIcons name="history" size={32} color={theme.colors.muted} />
+            </View>
+            <Text style={styles.emptyTitle}>No entries yet</Text>
+            <Text style={styles.emptyBody}>
               Complete a PHQ-9 check-in to start your timeline.
             </Text>
           </View>
@@ -110,11 +114,7 @@ const HistoryScreen: React.FC<BottomTabScreenProps<"History">> = () => {
           section: SectionListData<MoodEntry, HistorySection>;
         }) => (
           <View style={styles.sectionHeaderRow}>
-            <MaterialIcons
-              name="event"
-              size={18}
-              color={theme.colors.textSecondary}
-            />
+            <View style={styles.sectionDot} />
             <Text style={styles.sectionHeaderText}>{section.title}</Text>
           </View>
         )}
@@ -122,25 +122,33 @@ const HistoryScreen: React.FC<BottomTabScreenProps<"History">> = () => {
           item,
         }: SectionListRenderItemInfo<MoodEntry, HistorySection>) => (
           <View
-            style={styles.historyItem}
+            style={styles.card}
             accessibilityLabel={`Mood ${item.mood} at ${formatTime(item.timestamp)}`}
           >
-            <View style={[styles.moodDot, { backgroundColor: MOOD_COLORS[item.mood] }]}>
-              <Text style={styles.moodDotEmoji}>{moodEmoji[item.mood]}</Text>
-            </View>
+            {/* Accent bar on the left */}
+            <View style={[styles.cardAccent, { backgroundColor: MOOD_COLORS[item.mood] }]} />
 
-            <View style={styles.historyItemBody}>
-              <Text style={styles.historyMoodLabel}>{item.mood}</Text>
-              <Text style={styles.historyItemTime}>{formatTime(item.timestamp)}</Text>
-            </View>
-
-            {item.energy ? (
-              <View style={styles.energyPill}>
-                <Text style={styles.energyPillText}>
-                  {ENERGY_LEVELS[item.energy].emoji} {ENERGY_LEVELS[item.energy].label}
-                </Text>
+            <View style={styles.cardContent}>
+              {/* Top row: emoji + mood + time */}
+              <View style={styles.cardTopRow}>
+                <View style={[styles.moodDot, { backgroundColor: MOOD_COLORS[item.mood] + "20" }]}>
+                  <Text style={styles.moodEmoji}>{moodEmoji[item.mood]}</Text>
+                </View>
+                <Text style={styles.moodLabel}>{item.mood}</Text>
+                <Text style={styles.timeText}>{formatTime(item.timestamp)}</Text>
               </View>
-            ) : null}
+
+              {/* Energy pill if present */}
+              {item.energy ? (
+                <View style={styles.energyRow}>
+                  <View style={styles.energyPill}>
+                    <Text style={styles.energyText}>
+                      {ENERGY_LEVELS[item.energy].emoji}{"  "}{ENERGY_LEVELS[item.energy].label}
+                    </Text>
+                  </View>
+                </View>
+              ) : null}
+            </View>
           </View>
         )}
       />

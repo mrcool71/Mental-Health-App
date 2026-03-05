@@ -2,35 +2,49 @@ import { StyleSheet } from "react-native";
 import theme from "../theme/theme";
 
 export default StyleSheet.create({
-  // Filter tabs
-  filterTabs: {
+  // Header
+  header: {
+    paddingHorizontal: theme.spacing.lg,
+    paddingTop: theme.spacing.sm,
+    gap: 2,
+  },
+  headerSub: {
+    fontFamily: theme.typography.fontFamilyPrimary,
+    fontSize: theme.typography.sizes.small,
+    color: theme.colors.muted,
+  },
+
+  // Filter chips — compact row
+  filterRow: {
+    flexDirection: "row",
+    flexWrap: "wrap",
     gap: theme.spacing.sm,
-    paddingVertical: theme.spacing.md,
+    paddingVertical: theme.spacing.sm,
     paddingHorizontal: theme.spacing.lg,
   },
-  filterPill: {
+  filterChip: {
     borderRadius: theme.radii.pill,
-    paddingHorizontal: theme.spacing.md,
-    paddingVertical: theme.spacing.sm,
+    paddingHorizontal: 12,
+    paddingVertical: 5,
     borderWidth: 1,
   },
-  filterPillActive: {
+  filterChipActive: {
     backgroundColor: theme.colors.primary,
     borderColor: theme.colors.primary,
   },
-  filterPillInactive: {
+  filterChipInactive: {
     backgroundColor: theme.colors.surface,
     borderColor: theme.colors.backgroundAlt,
   },
-  filterPillText: {
-    fontSize: theme.typography.sizes.body,
+  filterChipText: {
+    fontSize: 11,
     fontFamily: theme.typography.fontFamilyPrimary,
     fontWeight: "600",
   },
-  filterPillTextActive: {
+  filterChipTextActive: {
     color: theme.colors.white,
   },
-  filterPillTextInactive: {
+  filterChipTextInactive: {
     color: theme.colors.muted,
   },
 
@@ -41,77 +55,123 @@ export default StyleSheet.create({
   listContent: {
     paddingHorizontal: theme.spacing.lg,
     paddingBottom: 80,
-    gap: theme.spacing.sm,
   },
 
   // Section headers
   sectionHeaderRow: {
-    marginTop: theme.spacing.lg,
-    marginBottom: theme.spacing.sm,
     flexDirection: "row",
     alignItems: "center",
-    gap: theme.spacing.xs,
+    marginTop: theme.spacing.lg,
+    marginBottom: theme.spacing.sm,
+    gap: theme.spacing.sm,
+  },
+  sectionDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: theme.colors.primary,
   },
   sectionHeaderText: {
     fontFamily: theme.typography.fontFamilyDisplay,
     fontSize: theme.typography.sizes.small,
-    color: theme.colors.textSecondary,
+    color: theme.colors.muted,
     textTransform: "uppercase",
     letterSpacing: 0.8,
   },
 
-  // Subtle list item
-  historyItem: {
+  // Card item
+  card: {
+    backgroundColor: theme.colors.surface,
+    borderRadius: theme.radii.md,
+    marginBottom: theme.spacing.sm,
+    flexDirection: "row",
+    overflow: "hidden",
+    // Subtle shadow
+    shadowColor: theme.colors.shadow,
+    shadowOpacity: 1,
+    shadowOffset: { width: 0, height: 2 },
+    shadowRadius: 6,
+    elevation: 1,
+  },
+  cardAccent: {
+    width: 4,
+  },
+  cardContent: {
+    flex: 1,
+    paddingVertical: theme.spacing.sm + 2,
+    paddingHorizontal: theme.spacing.md,
+    gap: theme.spacing.xs,
+  },
+  cardTopRow: {
     flexDirection: "row",
     alignItems: "center",
-    paddingVertical: theme.spacing.sm,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: theme.colors.backgroundAlt,
     gap: theme.spacing.sm,
   },
   moodDot: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
+    width: 30,
+    height: 30,
+    borderRadius: 15,
     alignItems: "center",
     justifyContent: "center",
-    flexShrink: 0,
   },
-  moodDotEmoji: {
-    fontSize: 18,
+  moodEmoji: {
+    fontSize: 15,
   },
-  historyItemBody: {
+  moodLabel: {
     flex: 1,
-    gap: 2,
-  },
-  historyMoodLabel: {
-    fontFamily: theme.typography.fontFamilyPrimary,
-    fontSize: theme.typography.sizes.small,
+    fontFamily: theme.typography.fontFamilyDisplay,
+    fontSize: theme.typography.sizes.body,
     color: theme.colors.textPrimary,
     textTransform: "capitalize",
-    fontWeight: "600",
   },
-  historyItemTime: {
+  timeText: {
     fontFamily: theme.typography.fontFamilyPrimary,
     fontSize: theme.typography.sizes.small,
-    color: theme.colors.textSecondary,
+    color: theme.colors.muted,
   },
 
-  // Item meta (kept for energyPill alignment)
-  itemMetaWrap: {
-    alignItems: "flex-end",
-    gap: theme.spacing.xs,
+  // Energy
+  energyRow: {
+    flexDirection: "row",
+    paddingLeft: 30 + theme.spacing.sm, // align with text after moodDot
   },
   energyPill: {
     backgroundColor: theme.colors.backgroundAlt,
     borderRadius: theme.radii.pill,
-    paddingHorizontal: theme.spacing.xs,
+    paddingHorizontal: theme.spacing.sm,
     paddingVertical: 2,
   },
-  energyPillText: {
+  energyText: {
     color: theme.colors.textSecondary,
     fontSize: theme.typography.sizes.small,
     fontFamily: theme.typography.fontFamilyPrimary,
   },
 
+  // Empty state
+  emptyWrap: {
+    alignItems: "center",
+    marginTop: theme.spacing.xl * 2,
+    gap: theme.spacing.sm,
+  },
+  emptyCircle: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    backgroundColor: theme.colors.backgroundAlt,
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: theme.spacing.sm,
+  },
+  emptyTitle: {
+    fontFamily: theme.typography.fontFamilyDisplay,
+    fontSize: theme.typography.sizes.h3,
+    color: theme.colors.plum,
+  },
+  emptyBody: {
+    fontFamily: theme.typography.fontFamilyPrimary,
+    fontSize: theme.typography.sizes.body,
+    color: theme.colors.muted,
+    textAlign: "center",
+    paddingHorizontal: theme.spacing.xl,
+  },
 });

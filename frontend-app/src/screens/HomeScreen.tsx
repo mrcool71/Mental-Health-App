@@ -7,7 +7,14 @@ import { useStore } from "../store";
 import globalStyles from "../styles/global.styles";
 import homeStyles from "../styles/home.styles";
 import { BottomTabScreenProps } from "../types/navigation";
-import { getGreetingByHour, formatTime } from "../utilities";
+import { formatTime } from "../utilities";
+
+const getGreetingByHour = (): string => {
+  const hour = new Date().getHours();
+  if (hour >= 5 && hour <= 11) return "morning";
+  if (hour >= 12 && hour <= 17) return "afternoon";
+  return "evening";
+};
 
 const HomeScreen: React.FC<BottomTabScreenProps<"Home">> = ({ navigation }) => {
   const { state } = useStore();

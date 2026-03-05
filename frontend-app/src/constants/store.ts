@@ -12,4 +12,18 @@ export const initialState: AppState = {
   score: 70,
   notificationResponses: [],
   hasOnboarded: false,
+  sensors: {
+    enabled: {
+      location: false,
+      accelerometer: false,
+      microphone: false,
+    },
+    backgroundLocationEnabled: false,
+    backgroundSensorsEnabled: false,
+    permissions: {
+      location: "undetermined",
+      microphone: "undetermined",
+    },
+    errors: {},
+  },
 };

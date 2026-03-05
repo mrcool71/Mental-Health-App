@@ -10,7 +10,13 @@ import profileStyles from "../styles/profile.styles";
 import { BottomTabScreenProps } from "../types/navigation";
 
 const ProfileScreen: React.FC<BottomTabScreenProps<"Profile">> = () => {
-  const { state, reset } = useStore();
+  const {
+    state,
+    reset,
+    setSensorEnabled,
+    setBackgroundLocationEnabled,
+    setBackgroundSensorsEnabled,
+  } = useStore();
   const latestEntry = state.history[0];
 
   const [name, setName] = useState("Wellbeing Friend");
@@ -97,6 +103,36 @@ const ProfileScreen: React.FC<BottomTabScreenProps<"Profile">> = () => {
       />
 
       <Text style={globalStyles.sectionHeader}>Privacy & Data</Text>
+      <SwitchRow
+        title="Location (GPS)"
+        subtitle="Allow location tracking while using the app"
+        value={state.sensors.enabled.location}
+        onValueChange={(val) => setSensorEnabled("location", val)}
+      />
+      <SwitchRow
+        title="Background Location"
+        subtitle="Collect location when the app is closed"
+        value={state.sensors.backgroundLocationEnabled}
+        onValueChange={setBackgroundLocationEnabled}
+      />
+      <SwitchRow
+        title="Accelerometer"
+        subtitle="Allow motion sensing while using the app"
+        value={state.sensors.enabled.accelerometer}
+        onValueChange={(val) => setSensorEnabled("accelerometer", val)}
+      />
+      <SwitchRow
+        title="Microphone"
+        subtitle="Allow sound level metering while using the app"
+        value={state.sensors.enabled.microphone}
+        onValueChange={(val) => setSensorEnabled("microphone", val)}
+      />
+      <SwitchRow
+        title="Background Sensors"
+        subtitle="Keep accelerometer & mic sampling when app is minimised"
+        value={state.sensors.backgroundSensorsEnabled}
+        onValueChange={setBackgroundSensorsEnabled}
+      />
       <SettingRow
         icon="insights"
         title="View Data Usage"

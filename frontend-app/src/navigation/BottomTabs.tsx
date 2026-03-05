@@ -8,6 +8,7 @@ import WellbeingScreen from "../screens/WellbeingScreen";
 import HistoryScreen from "../screens/HistoryScreen";
 import ProfileScreen from "../screens/ProfileScreen";
 import ResourcesScreen from "../screens/ResourcesScreen";
+import SensorDataScreen from "../screens/SensorDataScreen";
 import BottomTabBar from "../components/BottomTabBar";
 import { BottomTabParamList } from "../types/navigation";
 
@@ -28,6 +29,11 @@ export default function BottomTabs() {
       />
       <Tab.Screen name="History" component={HistoryScreen} />
       <Tab.Screen name="Resources" component={ResourcesScreen} />
+      <Tab.Screen
+        name="SensorData"
+        component={SensorDataScreen}
+        options={{ tabBarLabel: "Sensors" }}
+      />
       <Tab.Screen name="Profile" component={ProfileScreen} />
     </Tab.Navigator>
   );

@@ -4,21 +4,23 @@ import theme from "../theme/theme";
 export default StyleSheet.create({
   container: {
     position: "absolute",
-    left: theme.spacing.md,
-    right: theme.spacing.md,
-    paddingVertical: theme.spacing.sm,
-    paddingHorizontal: theme.spacing.sm,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    paddingTop: theme.spacing.sm,
+    paddingHorizontal: theme.spacing.xs,
     backgroundColor: theme.colors.surface,
-    borderRadius: theme.radii.pill,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
+    borderTopWidth: StyleSheet.hairlineWidth,
+    borderTopColor: theme.colors.backgroundAlt,
     ...Platform.select({
       ios: {
         shadowColor: theme.colors.black,
-        shadowOpacity: 0.08,
-        shadowOffset: { width: 0, height: 8 },
-        shadowRadius: 16,
+        shadowOpacity: 0.06,
+        shadowOffset: { width: 0, height: -4 },
+        shadowRadius: 8,
       },
       android: {
         elevation: 8,
@@ -31,11 +33,17 @@ export default StyleSheet.create({
     minHeight: theme.touch.minSize,
     alignItems: "center",
     justifyContent: "center",
-    gap: 2,
+    gap: 3,
+  },
+  iconWrap: {
+    width: 24,
+    height: 24,
+    alignItems: "center",
+    justifyContent: "center",
   },
   label: {
     fontFamily: theme.typography.fontFamilyPrimary,
-    fontSize: theme.typography.sizes.small,
+    fontSize: 10,
   },
   badgeDot: {
     position: "absolute",

@@ -3,6 +3,7 @@ import React, { useEffect } from "react";
 import { StatusBar } from "expo-status-bar";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { useFonts } from "expo-font";
+import { MaterialIcons } from "@expo/vector-icons";
 import notifee, { EventType } from "@notifee/react-native";
 import { StoreProvider, useStore } from "./src/store";
 import AppNavigator from "./src/navigation";
@@ -49,15 +50,22 @@ async function initNotifications() {
 }
 
 export default function App() {
-  useFonts({
-    // Load MaterialIcons for @expo/vector-icons (required in dev-client builds)
+  const [fontsLoaded, fontsError] = useFonts({
+    // Spread the exact font object that @expo/vector-icons uses internally.
+    // This guarantees Font.isLoaded("material") is true when icons render.
+    ...MaterialIcons.font,
     // eslint-disable-next-line @typescript-eslint/no-require-imports
-    MaterialIcons: require("@expo/vector-icons/build/vendor/react-native-vector-icons/Fonts/MaterialIcons.ttf"),
+    PoppinsRegular: require("./assets/Poppins/Poppins-Regular.ttf"),
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    PoppinsSemiBold: require("./assets/Poppins/Poppins-SemiBold.ttf"),
   });
 
   useEffect(() => {
     initNotifications().catch(console.error);
   }, []);
+
+  // Wait for fonts, but never block if loading errored — avoids permanent white screen.
+  if (!fontsLoaded && !fontsError) return null;
 
   return (
     <SafeAreaProvider>

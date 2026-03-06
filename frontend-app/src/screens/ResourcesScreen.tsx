@@ -101,6 +101,11 @@ const ResourcesScreen: React.FC<BottomTabScreenProps<"Resources">> = () => {
         <TouchableOpacity
           accessibilityRole="button"
           accessibilityLabel="Find campus help"
+          style={{
+            minHeight: 44,
+            justifyContent: "center",
+            alignSelf: "flex-start",
+          }}
           onPress={() => {
             console.log("Find Campus Help pressed");
           }}

@@ -1,3 +1,5 @@
+export const TAB_BAR_HEIGHT = 60;
+
 export const NAV_STACK_SCREEN_OPTIONS = {
   headerShown: false,
   animation: "slide_from_right",

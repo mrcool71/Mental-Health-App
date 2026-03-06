@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Animated, Text, TouchableOpacity, View } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { ONBOARDING_SLIDES } from "../constants/onboarding";
 import { useStore } from "../store";
 import globalStyles from "../styles/global.styles";
@@ -12,6 +13,7 @@ const OnboardingScreen: React.FC<RootStackScreenProps<"Onboarding">> = ({
   navigation,
 }) => {
   const { setOnboarded } = useStore();
+  const insets = useSafeAreaInsets();
   const [currentIndex, setCurrentIndex] = useState<number>(0);
 
   const dotWidths = useRef<Animated.Value[]>(
@@ -52,7 +54,12 @@ const OnboardingScreen: React.FC<RootStackScreenProps<"Onboarding">> = ({
 
   return (
     <View style={globalStyles.screen}>
-      <View style={onboardingStyles.content}>
+      <View
+        style={[
+          onboardingStyles.content,
+          { paddingTop: Math.max(theme.spacing.lg, insets.top + theme.spacing.sm) },
+        ]}
+      >
         <View style={onboardingStyles.topBar}>
           {!isLastSlide ? (
             <TouchableOpacity

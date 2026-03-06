@@ -3,10 +3,10 @@ import theme from "../theme/theme";
 
 export default StyleSheet.create({
   container: {
-    height: theme.sizes.headerHeight,
+    minHeight: theme.sizes.headerHeight,
     backgroundColor: theme.colors.surface,
     paddingHorizontal: theme.spacing.md,
-    paddingTop: theme.spacing.lg,
+    paddingBottom: theme.spacing.sm,
     flexDirection: "row",
     alignItems: "center",
     borderBottomWidth: 0,

@@ -1,4 +1,4 @@
-import React, { useMemo, useRef } from "react";
+import React, { useRef } from "react";
 import {
   Animated,
   Pressable,
@@ -56,11 +56,11 @@ function TabBarItem({
         }).start()
       }
     >
-      <View>
-        <MaterialIcons name={iconName as any} size={24} color={color} />
+      <View style={styles.iconWrap}>
+        <MaterialIcons name={iconName as any} size={22} color={color} />
         {routeName === "History" && showBadge ? <View style={styles.badgeDot} /> : null}
       </View>
-      <Text style={[styles.label, { color }]}>{label}</Text>
+      <Text style={[styles.label, { color }]} numberOfLines={1} ellipsizeMode="tail">{label}</Text>
     </AnimatedPressable>
   );
 }
@@ -75,15 +75,10 @@ export default function BottomTabBar({
 
   const showHistoryBadge = storeState.history.length > 0;
 
-  const bottomOffset = useMemo(
-    () => theme.spacing.md + insets.bottom,
-    [insets.bottom],
-  );
-
   return (
     <View
       pointerEvents="box-none"
-      style={[styles.container, { bottom: bottomOffset }]}
+      style={[styles.container, { paddingBottom: Math.max(insets.bottom, theme.spacing.sm) }]}
       accessibilityRole="tablist"
       accessible
       accessibilityLabel="Bottom navigation"

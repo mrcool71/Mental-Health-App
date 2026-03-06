@@ -1,11 +1,13 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Animated, Text, TouchableOpacity, View } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import ProgressBar from "../components/ProgressBar";
 import ScreenScrollView from "../components/ScreenScrollView";
 import { PHQ9_MAX_SCORE, PHQ9_OPTIONS, PHQ9_QUESTIONS } from "../constants/phq9";
 import { useStore } from "../store";
 import globalStyles from "../styles/global.styles";
 import quickCheckStyles from "../styles/quickCheck.styles";
+import theme from "../theme/theme";
 import type { MoodEntry, Phq9Assessment } from "../types/models";
 import { RootStackScreenProps } from "../types/navigation";
 import {
@@ -19,6 +21,7 @@ const QuickCheckScreen: React.FC<RootStackScreenProps<"QuickCheck">> = ({
   navigation,
 }) => {
   const { addEntry, addPhq9Assessment } = useStore();
+  const insets = useSafeAreaInsets();
   const [questionIndex, setQuestionIndex] = useState<number>(0);
   const [answers, setAnswers] = useState<Array<number | null>>(
     Array(PHQ9_QUESTIONS.length).fill(null),
@@ -130,7 +133,10 @@ const QuickCheckScreen: React.FC<RootStackScreenProps<"QuickCheck">> = ({
   return (
     <ScreenScrollView
       accessibilityLabel="PHQ-9 check-in screen"
-      contentContainerStyle={quickCheckStyles.content}
+      contentContainerStyle={[
+        quickCheckStyles.content,
+        { paddingBottom: Math.max(theme.spacing.xl, insets.bottom + theme.spacing.md) },
+      ]}
     >
       <ProgressBar animatedWidth={progressWidth} />
 

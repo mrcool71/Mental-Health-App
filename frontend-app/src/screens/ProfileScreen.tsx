@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Text, View } from "react-native";
+import { Alert, Text, View } from "react-native";
 import MoodBadge from "../components/MoodBadge";
 import ProgressBar from "../components/ProgressBar";
 import { SettingRow, SwitchRow } from "../components/ProfileSettingRow";
@@ -8,6 +8,7 @@ import { useStore } from "../store";
 import globalStyles from "../styles/global.styles";
 import profileStyles from "../styles/profile.styles";
 import { BottomTabScreenProps } from "../types/navigation";
+import { exportDataToCsv, shareCsvFile } from "../utilities";
 
 const ProfileScreen: React.FC<BottomTabScreenProps<"Profile">> = () => {
   const {
@@ -23,6 +24,7 @@ const ProfileScreen: React.FC<BottomTabScreenProps<"Profile">> = () => {
   const [email] = useState("hello@wellbeing.app");
   const [dailyReminders, setDailyReminders] = useState(true);
   const [darkMode, setDarkMode] = useState(false);
+  const [isExporting, setIsExporting] = useState(false);
 
   const wellbeingProgress = Math.max(0, Math.min(state.score, 100));
 
@@ -30,6 +32,38 @@ const ProfileScreen: React.FC<BottomTabScreenProps<"Profile">> = () => {
     setName((prev) =>
       prev === "Wellbeing Friend" ? "Mindful Friend" : "Wellbeing Friend",
     );
+
+  const handleExportData = async () => {
+    if (isExporting) return;
+
+    try {
+      setIsExporting(true);
+      const { uri, rowCount } = await exportDataToCsv(state);
+      const shared = await shareCsvFile(uri);
+
+      if (!shared) {
+        Alert.alert(
+          "CSV Export Complete",
+          `Created ${rowCount} row(s). File saved at:\n${uri}`,
+        );
+        return;
+      }
+
+      Alert.alert(
+        "CSV Export Complete",
+        `Created ${rowCount} row(s) and opened the share sheet.`,
+      );
+    } catch (error) {
+      Alert.alert(
+        "Export Failed",
+        error instanceof Error
+          ? error.message
+          : "Unable to export local data to CSV.",
+      );
+    } finally {
+      setIsExporting(false);
+    }
+  };
 
   return (
     <ScreenScrollView
@@ -141,9 +175,10 @@ const ProfileScreen: React.FC<BottomTabScreenProps<"Profile">> = () => {
       />
       <SettingRow
         icon="download"
-        title="Download My Data"
-        onPress={() => console.log("Download data pressed")}
-        accessibilityLabel="Download data"
+        title={isExporting ? "Exporting Data..." : "Export Data (CSV)"}
+        subtitle="Create a CSV from local mood, survey, and sensor data"
+        onPress={handleExportData}
+        accessibilityLabel="Export data as CSV"
       />
       <SettingRow
         icon="delete-outline"

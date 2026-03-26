@@ -46,7 +46,8 @@
     "plugins": [
       "expo-font",
       "./plugins/withNotifeeMavenRepo",
-      "expo-audio"
+      "expo-audio",
+      "expo-asset"
     ]
   }
 }

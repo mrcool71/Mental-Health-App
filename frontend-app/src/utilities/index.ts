@@ -18,3 +18,4 @@ export {
 export { hexToRgba } from "./color";
 export { sendTestNotification } from "./testNotification";
 export { toLocationReading } from "./locationReading";
+export { exportDataToCsv, shareCsvFile } from "./exportDataCsv";

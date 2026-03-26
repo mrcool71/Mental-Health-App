@@ -8,7 +8,15 @@ export {
   buildNotificationPayload,
 } from "./questionHelpers";
 export { formatTime } from "./formatTime";
-export { calculateScore, getScoreLabel } from "./calculateScore";
+export {
+  calculateScore,
+  getScoreLabel,
+  calcMoodScore,
+  calcEnergyScore,
+  calcActivityScore,
+  calcNoiseScore,
+  calculateWellbeingBreakdown,
+} from "./calculateScore";
 export {
   getPhq9Severity,
   getPhq9SeverityLabel,

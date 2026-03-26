@@ -38,12 +38,14 @@
       },
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
-      "package": "com.ankyv.frontendapp"
+      "package": "com.ankyv.frontendapp",
+      "googleServicesFile": "./google-services.json"
     },
     "web": {
       "favicon": "./assets/favicon.png"
     },
     "plugins": [
+      "@react-native-firebase/app",
       "expo-font",
       "./plugins/withNotifeeMavenRepo",
       "expo-audio",

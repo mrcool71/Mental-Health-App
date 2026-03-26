@@ -13,6 +13,8 @@ export const WELLBEING_DEFAULT_STATS = {
 export const WELLBEING_STAT_COLORS: Record<string, string> = {
   Mood: theme.colors.primary,
   Energy: theme.colors.accent,
+  Activity: "#F6AD55",
+  Noise: "#63B3ED",
   Sleep: theme.colors.lilac,
   Social: theme.colors.danger,
 };

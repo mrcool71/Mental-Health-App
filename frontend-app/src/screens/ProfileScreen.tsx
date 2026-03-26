@@ -9,6 +9,7 @@ import globalStyles from "../styles/global.styles";
 import profileStyles from "../styles/profile.styles";
 import { BottomTabScreenProps } from "../types/navigation";
 import { exportDataToCsv, shareCsvFile } from "../utilities";
+import { signOut, getCurrentUser } from "../services/auth";
 
 const ProfileScreen: React.FC<BottomTabScreenProps<"Profile">> = () => {
   const {
@@ -21,7 +22,8 @@ const ProfileScreen: React.FC<BottomTabScreenProps<"Profile">> = () => {
   const latestEntry = state.history[0];
 
   const [name, setName] = useState("Wellbeing Friend");
-  const [email] = useState("hello@wellbeing.app");
+  const firebaseUser = getCurrentUser();
+  const userEmail = firebaseUser?.email ?? "Not signed in";
   const [dailyReminders, setDailyReminders] = useState(true);
   const [darkMode, setDarkMode] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
@@ -78,7 +80,7 @@ const ProfileScreen: React.FC<BottomTabScreenProps<"Profile">> = () => {
           </View>
           <View style={profileStyles.profileInfo}>
             <Text style={profileStyles.name}>{name}</Text>
-            <Text style={profileStyles.email}>{email}</Text>
+            <Text style={profileStyles.email}>{userEmail}</Text>
             {latestEntry ? (
               <View style={profileStyles.moodBadgeWrap}>
                 <MoodBadge mood={latestEntry.mood} label={latestEntry.mood} />
@@ -101,10 +103,10 @@ const ProfileScreen: React.FC<BottomTabScreenProps<"Profile">> = () => {
       />
       <SettingRow
         icon="email"
-        title="Change Email"
-        subtitle={email}
-        onPress={() => console.log("Change email pressed")}
-        accessibilityLabel="Change email"
+        title="Email"
+        subtitle={userEmail}
+        onPress={() => console.log("Email info")}
+        accessibilityLabel="Email"
       />
       <SettingRow
         icon="lock"
@@ -199,7 +201,16 @@ const ProfileScreen: React.FC<BottomTabScreenProps<"Profile">> = () => {
       <SettingRow
         icon="logout"
         title="Log Out"
-        onPress={() => console.log("Log out pressed")}
+        onPress={() => {
+          Alert.alert("Log Out", "Are you sure you want to log out?", [
+            { text: "Cancel", style: "cancel" },
+            {
+              text: "Log Out",
+              style: "destructive",
+              onPress: () => signOut(),
+            },
+          ]);
+        }}
         accessibilityLabel="Log out"
       />
 

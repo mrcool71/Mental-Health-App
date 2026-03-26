@@ -5,6 +5,7 @@ import React, {
   useEffect,
   useMemo,
   useReducer,
+  useRef,
   ReactNode,
 } from "react";
 import {
@@ -23,6 +24,13 @@ import {
   loadLastMicrophoneReading,
 } from "../utilities/sensorStorage";
 import { calculateScore } from "../utilities";
+import { loadState, saveState } from "../utilities/stateStorage";
+import { getCurrentUser } from "../services/auth";
+import {
+  syncMoodEntry,
+  syncPhq9Assessment,
+  syncProfile,
+} from "../services/cloudSync";
 
 function reducer(state: AppState, action: AppAction): AppState {
   switch (action.type) {
@@ -117,6 +125,8 @@ function reducer(state: AppState, action: AppAction): AppState {
           microphone: action.payload,
         },
       };
+    case "RESTORE_STATE":
+      return { ...state, ...action.payload };
     case "RESET":
       return initialState;
     default:
@@ -130,6 +140,36 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({
   children,
 }) => {
   const [state, dispatch] = useReducer(reducer, initialState);
+  const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const isRestoredRef = useRef(false);
+
+  // Restore persisted core state on mount (mood history, PHQ-9, score, onboarding).
+  useEffect(() => {
+    loadState().then((saved) => {
+      if (saved && Object.keys(saved).length > 0) {
+        dispatch({ type: "RESTORE_STATE", payload: saved });
+      }
+      isRestoredRef.current = true;
+    });
+  }, []);
+
+  // Auto-save core state to AsyncStorage whenever it changes (debounced 500ms).
+  // Skips the first render to avoid overwriting with initialState before restore.
+  useEffect(() => {
+    if (!isRestoredRef.current) return;
+    if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
+    saveTimerRef.current = setTimeout(() => {
+      saveState({
+        history: state.history,
+        score: state.score,
+        phq9History: state.phq9History,
+        hasOnboarded: state.hasOnboarded,
+      });
+    }, 500);
+    return () => {
+      if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
+    };
+  }, [state.history, state.score, state.phq9History, state.hasOnboarded]);
 
   // Sync notification responses from AsyncStorage into memory on mount.
   // This restores responses that were saved by the background headless handler
@@ -167,7 +207,11 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({
   }, []);
 
   const addEntry = useCallback(
-    (entry: MoodEntry) => dispatch({ type: "ADD_ENTRY", payload: entry }),
+    (entry: MoodEntry) => {
+      dispatch({ type: "ADD_ENTRY", payload: entry });
+      const user = getCurrentUser();
+      if (user) syncMoodEntry(user.uid, entry);
+    },
     [],
   );
 
@@ -179,10 +223,16 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({
 
   const addPhq9Assessment = (assessment: Phq9Assessment) => {
     dispatch({ type: "ADD_PHQ9_ASSESSMENT", payload: assessment });
+    const user = getCurrentUser();
+    if (user) syncPhq9Assessment(user.uid, assessment);
   };
 
   const setOnboarded = useCallback(
-    () => dispatch({ type: "SET_ONBOARDED" }),
+    () => {
+      dispatch({ type: "SET_ONBOARDED" });
+      const user = getCurrentUser();
+      if (user) syncProfile(user.uid, { hasOnboarded: true });
+    },
     [],
   );
 

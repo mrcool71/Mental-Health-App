@@ -15,6 +15,7 @@ export type BottomTabParamList = {
 };
 
 export type RootStackParamList = {
+  Login: undefined;
   Onboarding: undefined;
   Tabs: NavigatorScreenParams<BottomTabParamList>;
   QuickCheck: undefined;

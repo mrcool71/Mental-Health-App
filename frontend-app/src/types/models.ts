@@ -69,4 +69,5 @@ export type AppAction =
   | { type: "SET_LOCATION_READING"; payload?: LocationReading }
   | { type: "SET_ACCELEROMETER_READING"; payload?: AccelerometerReading }
   | { type: "SET_MICROPHONE_READING"; payload?: MicrophoneReading }
+  | { type: "RESTORE_STATE"; payload: Partial<AppState> }
   | { type: "RESET" };

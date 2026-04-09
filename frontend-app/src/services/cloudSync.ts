@@ -1,64 +1,41 @@
-import { getAuth } from "@react-native-firebase/auth";
+import {
+  getFirestore,
+  collection,
+  doc,
+  setDoc,
+  getDoc,
+  getDocs,
+  query,
+  orderBy,
+  limit,
+  serverTimestamp,
+} from "@react-native-firebase/firestore";
+import { increment } from "@react-native-firebase/firestore/lib/modular/FieldValue";
+import type { FirebaseFirestoreTypes } from "@react-native-firebase/firestore";
 import type { MoodEntry, Phq9Assessment } from "../types/models";
 import type {
   AccelerometerReading,
   LocationReading,
   MicrophoneReading,
 } from "../types/sensors";
-import { DATA_CONNECT_API_BASE_URL } from "../constants/api";
 
-type HttpMethod = "GET" | "POST" | "PUT" | "PATCH";
-
-type ApiOptions = {
-  method?: HttpMethod;
-  body?: unknown;
-};
-
-async function getAuthHeaders(userId: string): Promise<Record<string, string>> {
-  const user = getAuth().currentUser;
-  const token = user ? await user.getIdToken() : undefined;
-
-  return {
-    "Content-Type": "application/json",
-    "x-user-id": userId,
-    ...(token ? { Authorization: `Bearer ${token}` } : {}),
-  };
+function userDocRef(userId: string) {
+  return doc(getFirestore(), "users", userId);
 }
 
-async function apiRequest<T>(
-  userId: string,
-  path: string,
-  options: ApiOptions = {},
-): Promise<T> {
-  const method = options.method ?? "GET";
-  const url = `${DATA_CONNECT_API_BASE_URL}${path}`;
-
-  const response = await fetch(url, {
-    method,
-    headers: await getAuthHeaders(userId),
-    ...(options.body !== undefined ? { body: JSON.stringify(options.body) } : {}),
-  });
-
-  if (!response.ok) {
-    const text = await response.text().catch(() => "");
-    throw new Error(`HTTP ${response.status} ${response.statusText} ${text}`.trim());
-  }
-
-  if (response.status === 204) {
-    return undefined as T;
-  }
-
-  return (await response.json()) as T;
-}
-
+// Mood entries
 export async function syncMoodEntry(
   userId: string,
   entry: MoodEntry,
 ): Promise<void> {
   try {
-    await apiRequest<void>(userId, `/v1/users/${userId}/mood-entries`, {
-      method: "POST",
-      body: entry,
+    const ref = doc(
+      collection(getFirestore(), "users", userId, "mood_entries"),
+      entry.id,
+    );
+    await setDoc(ref, {
+      ...entry,
+      syncedAt: serverTimestamp(),
     });
   } catch (e) {
     console.error("[cloudSync] syncMoodEntry failed:", e);
@@ -69,9 +46,12 @@ export async function loadCloudMoodEntries(
   userId: string,
 ): Promise<MoodEntry[]> {
   try {
-    return await apiRequest<MoodEntry[]>(
-      userId,
-      `/v1/users/${userId}/mood-entries?limit=500`,
+    const col = collection(getFirestore(), "users", userId, "mood_entries");
+    const q = query(col, orderBy("timestamp", "desc"), limit(500));
+    const snapshot = await getDocs(q);
+    return snapshot.docs.map(
+      (docSnap: FirebaseFirestoreTypes.QueryDocumentSnapshot) =>
+        docSnap.data() as MoodEntry,
     );
   } catch (e) {
     console.error("[cloudSync] loadCloudMoodEntries failed:", e);
@@ -79,14 +59,19 @@ export async function loadCloudMoodEntries(
   }
 }
 
+// PHQ assessments
 export async function syncPhq9Assessment(
   userId: string,
   assessment: Phq9Assessment,
 ): Promise<void> {
   try {
-    await apiRequest<void>(userId, `/v1/users/${userId}/phq-assessments`, {
-      method: "POST",
-      body: assessment,
+    const ref = doc(
+      collection(getFirestore(), "users", userId, "phq9_assessments"),
+      assessment.id,
+    );
+    await setDoc(ref, {
+      ...assessment,
+      syncedAt: serverTimestamp(),
     });
   } catch (e) {
     console.error("[cloudSync] syncPhq9Assessment failed:", e);
@@ -97,9 +82,12 @@ export async function loadCloudPhq9Assessments(
   userId: string,
 ): Promise<Phq9Assessment[]> {
   try {
-    return await apiRequest<Phq9Assessment[]>(
-      userId,
-      `/v1/users/${userId}/phq-assessments?limit=100`,
+    const col = collection(getFirestore(), "users", userId, "phq9_assessments");
+    const q = query(col, orderBy("timestamp", "desc"), limit(100));
+    const snapshot = await getDocs(q);
+    return snapshot.docs.map(
+      (docSnap: FirebaseFirestoreTypes.QueryDocumentSnapshot) =>
+        docSnap.data() as Phq9Assessment,
     );
   } catch (e) {
     console.error("[cloudSync] loadCloudPhq9Assessments failed:", e);
@@ -107,15 +95,20 @@ export async function loadCloudPhq9Assessments(
   }
 }
 
+// Profile
 export async function syncProfile(
   userId: string,
   profile: { hasOnboarded: boolean },
 ): Promise<void> {
   try {
-    await apiRequest<void>(userId, `/v1/users/${userId}/profile`, {
-      method: "PATCH",
-      body: profile,
-    });
+    await setDoc(
+      userDocRef(userId),
+      {
+        ...profile,
+        lastSync: serverTimestamp(),
+      },
+      { merge: true },
+    );
   } catch (e) {
     console.error("[cloudSync] syncProfile failed:", e);
   }
@@ -125,10 +118,9 @@ export async function loadCloudProfile(
   userId: string,
 ): Promise<{ hasOnboarded?: boolean } | null> {
   try {
-    return await apiRequest<{ hasOnboarded?: boolean }>(
-      userId,
-      `/v1/users/${userId}/profile`,
-    );
+    const snapshot = await getDoc(userDocRef(userId));
+    if (!snapshot.exists()) return null;
+    return snapshot.data() as { hasOnboarded?: boolean };
   } catch (e) {
     console.error("[cloudSync] loadCloudProfile failed:", e);
     return null;
@@ -153,6 +145,7 @@ export async function loadAllCloudData(userId: string): Promise<{
   };
 }
 
+// Sensor buckets
 type SensorType = "location" | "accelerometer" | "microphone";
 
 type SensorReadingMap = {
@@ -181,7 +174,7 @@ type SensorBucketAggregate = {
   sumDb?: number;
   maxDb?: number;
   dbCount?: number;
-  sampleReadings: Array<Record<string, number | string | boolean>>;
+  sampleReadings: Array<Record<string, number | string | boolean | null>>;
 };
 
 const SENSOR_BUCKET_MINUTES = 5;
@@ -207,7 +200,7 @@ function bucketKey(userId: string, sensorType: SensorType, bucketStartMs: number
 
 function pushSample(
   agg: SensorBucketAggregate,
-  sample: Record<string, number | string | boolean>,
+  sample: Record<string, number | string | boolean | null>,
 ) {
   agg.sampleReadings.push(sample);
   if (agg.sampleReadings.length > SENSOR_SAMPLE_LIMIT) {
@@ -215,10 +208,7 @@ function pushSample(
   }
 }
 
-function updateLocationAggregate(
-  agg: SensorBucketAggregate,
-  reading: LocationReading,
-) {
+function updateLocationAggregate(agg: SensorBucketAggregate, reading: LocationReading) {
   agg.sumLat = (agg.sumLat ?? 0) + reading.latitude;
   agg.sumLng = (agg.sumLng ?? 0) + reading.longitude;
 
@@ -262,10 +252,7 @@ function updateAccelerometerAggregate(
   });
 }
 
-function updateMicrophoneAggregate(
-  agg: SensorBucketAggregate,
-  reading: MicrophoneReading,
-) {
+function updateMicrophoneAggregate(agg: SensorBucketAggregate, reading: MicrophoneReading) {
   if (typeof reading.meteringDb === "number") {
     agg.sumDb = (agg.sumDb ?? 0) + reading.meteringDb;
     agg.dbCount = (agg.dbCount ?? 0) + 1;
@@ -285,10 +272,12 @@ function updateMicrophoneAggregate(
 function buildBucketWritePayload(agg: SensorBucketAggregate) {
   const base: Record<string, unknown> = {
     sensorType: agg.sensorType,
-    bucketStart: new Date(agg.bucketStartMs).toISOString(),
-    bucketEnd: new Date(agg.bucketEndMs).toISOString(),
-    count: agg.count,
+    bucketStart: new Date(agg.bucketStartMs),
+    bucketEnd: new Date(agg.bucketEndMs),
+    count: increment(agg.count),
     sampleReadings: agg.sampleReadings,
+    updatedAt: serverTimestamp(),
+    createdAt: serverTimestamp(),
   };
 
   if (agg.sensorType === "location") {
@@ -326,14 +315,13 @@ async function flushBucket(key: string): Promise<void> {
   const agg = bucketAggregates.get(key);
   if (!agg || agg.count === 0) return;
 
+  const ref = doc(
+    collection(getFirestore(), "users", agg.userId, "sensor_buckets"),
+    makeBucketDocId(agg.bucketStartMs, agg.sensorType),
+  );
+
   try {
-    await apiRequest<void>(agg.userId, `/v1/users/${agg.userId}/sensor-buckets/upsert`, {
-      method: "POST",
-      body: {
-        bucketId: makeBucketDocId(agg.bucketStartMs, agg.sensorType),
-        ...buildBucketWritePayload(agg),
-      },
-    });
+    await setDoc(ref, buildBucketWritePayload(agg), { merge: true });
     bucketAggregates.delete(key);
   } catch (e) {
     console.error("[cloudSync] flushBucket failed:", e);

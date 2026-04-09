@@ -52,3 +52,7 @@ GoogleService-Info.plist
 *.local
 firebase-debug.log
 firestore-debug.log
+
+# Firebase Admin SDK local keys
+serviceAccountKey*.json
+*service-account*.json

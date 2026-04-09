@@ -17,9 +17,7 @@
       "infoPlist": {
         "NSLocationWhenInUseUsageDescription": "This app uses your location to support wellbeing and safety features.",
         "NSLocationAlwaysAndWhenInUseUsageDescription": "This app uses your location to support wellbeing and safety features, even when the app is closed.",
-        "UIBackgroundModes": [
-          "location"
-        ],
+        "UIBackgroundModes": ["location"],
         "NSMicrophoneUsageDescription": "This app uses microphone access to measure ambient sound levels for wellbeing features."
       }
     },
@@ -50,6 +48,9 @@
       "./plugins/withNotifeeMavenRepo",
       "expo-audio",
       "expo-asset"
-    ]
+    ],
+    "extra": {
+      "dataConnectApiBaseUrl": "http://10.0.2.2:8080"
+    }
   }
 }

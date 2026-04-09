@@ -15,7 +15,9 @@ app.get("/health", async (_req, res) => {
     await pool.query("SELECT 1");
     return res.json({ ok: true });
   } catch (e: any) {
-    return res.status(500).json({ ok: false, error: e?.message ?? "db unavailable" });
+    return res
+      .status(500)
+      .json({ ok: false, error: e?.message ?? "db unavailable" });
   }
 });
 
@@ -53,20 +55,31 @@ app.post("/v1/users/:userId/mood-entries", requireAuth, async (req, res) => {
          SET mood = EXCLUDED.mood,
              energy = EXCLUDED.energy,
              note = EXCLUDED.note`,
-        [entry.id, userId, entry.timestamp, entry.mood, entry.energy ?? null, entry.note ?? null],
+        [
+          entry.id,
+          userId,
+          entry.timestamp,
+          entry.mood,
+          entry.energy ?? null,
+          entry.note ?? null,
+        ],
       );
     });
 
     return res.status(204).send();
   } catch (e: any) {
-    return res.status(500).json({ error: e?.message ?? "failed to write mood entry" });
+    return res
+      .status(500)
+      .json({ error: e?.message ?? "failed to write mood entry" });
   }
 });
 
 app.get("/v1/users/:userId/mood-entries", requireAuth, async (req, res) => {
   const { userId } = req.params;
   const limitRaw = Number(req.query.limit ?? 500);
-  const rowLimit = Number.isFinite(limitRaw) ? Math.min(Math.max(limitRaw, 1), 1000) : 500;
+  const rowLimit = Number.isFinite(limitRaw)
+    ? Math.min(Math.max(limitRaw, 1), 1000)
+    : 500;
 
   if (!assertUserMatch(req, userId)) {
     return res.status(403).json({ error: "forbidden" });
@@ -85,7 +98,9 @@ app.get("/v1/users/:userId/mood-entries", requireAuth, async (req, res) => {
 
     return res.json(rows);
   } catch (e: any) {
-    return res.status(500).json({ error: e?.message ?? "failed to load mood entries" });
+    return res
+      .status(500)
+      .json({ error: e?.message ?? "failed to load mood entries" });
   }
 });
 
@@ -140,14 +155,18 @@ app.post("/v1/users/:userId/phq-assessments", requireAuth, async (req, res) => {
 
     return res.status(204).send();
   } catch (e: any) {
-    return res.status(500).json({ error: e?.message ?? "failed to write assessment" });
+    return res
+      .status(500)
+      .json({ error: e?.message ?? "failed to write assessment" });
   }
 });
 
 app.get("/v1/users/:userId/phq-assessments", requireAuth, async (req, res) => {
   const { userId } = req.params;
   const limitRaw = Number(req.query.limit ?? 100);
-  const rowLimit = Number.isFinite(limitRaw) ? Math.min(Math.max(limitRaw, 1), 1000) : 100;
+  const rowLimit = Number.isFinite(limitRaw)
+    ? Math.min(Math.max(limitRaw, 1), 1000)
+    : 100;
 
   if (!assertUserMatch(req, userId)) {
     return res.status(403).json({ error: "forbidden" });
@@ -171,7 +190,9 @@ app.get("/v1/users/:userId/phq-assessments", requireAuth, async (req, res) => {
 
     return res.json(rows);
   } catch (e: any) {
-    return res.status(500).json({ error: e?.message ?? "failed to load assessments" });
+    return res
+      .status(500)
+      .json({ error: e?.message ?? "failed to load assessments" });
   }
 });
 
@@ -204,7 +225,9 @@ app.patch("/v1/users/:userId/profile", requireAuth, async (req, res) => {
 
     return res.status(204).send();
   } catch (e: any) {
-    return res.status(500).json({ error: e?.message ?? "failed to update profile" });
+    return res
+      .status(500)
+      .json({ error: e?.message ?? "failed to update profile" });
   }
 });
 
@@ -222,35 +245,40 @@ app.get("/v1/users/:userId/profile", requireAuth, async (req, res) => {
 
     return res.json({ hasOnboarded: rows.length > 0 });
   } catch (e: any) {
-    return res.status(500).json({ error: e?.message ?? "failed to load profile" });
+    return res
+      .status(500)
+      .json({ error: e?.message ?? "failed to load profile" });
   }
 });
 
-app.post("/v1/users/:userId/sensor-buckets/upsert", requireAuth, async (req, res) => {
-  const { userId } = req.params;
-  if (!assertUserMatch(req, userId)) {
-    return res.status(403).json({ error: "forbidden" });
-  }
+app.post(
+  "/v1/users/:userId/sensor-buckets/upsert",
+  requireAuth,
+  async (req, res) => {
+    const { userId } = req.params;
+    if (!assertUserMatch(req, userId)) {
+      return res.status(403).json({ error: "forbidden" });
+    }
 
-  const body = req.body as {
-    sensorType: "location" | "accelerometer" | "microphone";
-    bucketStart: string;
-    count: number;
-    sampleReadings?: unknown[];
-    [key: string]: unknown;
-  };
+    const body = req.body as {
+      sensorType: "location" | "accelerometer" | "microphone";
+      bucketStart: string;
+      count: number;
+      sampleReadings?: unknown[];
+      [key: string]: unknown;
+    };
 
-  try {
-    await withTransaction(async (client) => {
-      await client.query(
-        `INSERT INTO app_user (external_auth_id)
+    try {
+      await withTransaction(async (client) => {
+        await client.query(
+          `INSERT INTO app_user (external_auth_id)
          VALUES ($1)
          ON CONFLICT (external_auth_id) DO NOTHING`,
-        [userId],
-      );
+          [userId],
+        );
 
-      await client.query(
-        `INSERT INTO sensor_event (user_id, sensor, captured_at, source_device_time_ms, latitude, longitude, metering_db, payload)
+        await client.query(
+          `INSERT INTO sensor_event (user_id, sensor, captured_at, source_device_time_ms, latitude, longitude, metering_db, payload)
          VALUES (
            (SELECT id FROM app_user WHERE external_auth_id = $1),
            $2::sensor_type,
@@ -261,23 +289,26 @@ app.post("/v1/users/:userId/sensor-buckets/upsert", requireAuth, async (req, res
            $6,
            $7::jsonb
          )`,
-        [
-          userId,
-          body.sensorType,
-          body.bucketStart,
-          typeof body.avgLat === "number" ? body.avgLat : null,
-          typeof body.avgLng === "number" ? body.avgLng : null,
-          typeof body.avgDb === "number" ? body.avgDb : null,
-          JSON.stringify(body),
-        ],
-      );
-    });
+          [
+            userId,
+            body.sensorType,
+            body.bucketStart,
+            typeof body.avgLat === "number" ? body.avgLat : null,
+            typeof body.avgLng === "number" ? body.avgLng : null,
+            typeof body.avgDb === "number" ? body.avgDb : null,
+            JSON.stringify(body),
+          ],
+        );
+      });
 
-    return res.status(204).send();
-  } catch (e: any) {
-    return res.status(500).json({ error: e?.message ?? "failed to upsert sensor bucket" });
-  }
-});
+      return res.status(204).send();
+    } catch (e: any) {
+      return res
+        .status(500)
+        .json({ error: e?.message ?? "failed to upsert sensor bucket" });
+    }
+  },
+);
 
 const port = Number(process.env.PORT ?? 8080);
 app.listen(port, () => {

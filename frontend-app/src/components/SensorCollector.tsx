@@ -13,20 +13,23 @@ export default function SensorCollector() {
   useBackgroundLocation(state.sensors.backgroundLocationEnabled);
   useBackgroundSensors(state.sensors.backgroundSensorsEnabled);
 
+  // When background services are active they handle their own sampling.
+  // Running foreground hooks simultaneously causes resource conflicts
+  // (e.g. two AudioRecorder instances fighting over the mic → crash).
   useLocationSensor({
-    enabled: state.sensors.enabled.location,
+    enabled: state.sensors.enabled.location && !state.sensors.backgroundLocationEnabled,
     accuracy: undefined,
     timeInterval: 5000,
     distanceInterval: 10,
   });
 
   useAccelerometerSensor({
-    enabled: state.sensors.enabled.accelerometer,
+    enabled: state.sensors.enabled.accelerometer && !state.sensors.backgroundSensorsEnabled,
     updateIntervalMs: 250,
   });
 
   useMicrophoneSampling({
-    enabled: state.sensors.enabled.microphone,
+    enabled: state.sensors.enabled.microphone && !state.sensors.backgroundSensorsEnabled,
     meteringUpdateIntervalMs: 250,
     intervalMs: 120000,
     sampleDurationMs: 5000,

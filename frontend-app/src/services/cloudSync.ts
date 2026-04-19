@@ -277,7 +277,6 @@ function buildBucketWritePayload(agg: SensorBucketAggregate) {
     count: increment(agg.count),
     sampleReadings: agg.sampleReadings,
     updatedAt: serverTimestamp(),
-    createdAt: serverTimestamp(),
   };
 
   if (agg.sensorType === "location") {

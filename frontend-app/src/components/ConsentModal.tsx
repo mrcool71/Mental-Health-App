@@ -27,12 +27,18 @@ export default function ConsentModal({ visible, onConsent }: ConsentModalProps) 
     if (isAtBottom) setHasScrolledToBottom(true)
   }
 
+  function handleRequestClose() {
+    // Intentionally prevent dismissing the consent modal via the Android
+    // hardware back button so the existing consent flow remains unchanged.
+  }
+
   return (
     <Modal
       visible={visible}
       transparent={false}
       animationType="slide"
       statusBarTranslucent
+      onRequestClose={handleRequestClose}
     >
       <View style={styles.container}>
         <View style={[styles.header, { paddingTop: insets.top + 14 }]}>

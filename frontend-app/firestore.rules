@@ -90,7 +90,7 @@ service cloud.firestore {
       }
 
       // Full PHQ assessments.
-      match /phq_assessments/{assessmentId} {
+      match /phq9_assessments/{assessmentId} {
         allow read: if isOwner(uid);
         allow create, update: if isOwner(uid)
           && request.resource.data.keys().hasOnly([

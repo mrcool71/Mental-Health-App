@@ -9,8 +9,8 @@ import {
   orderBy,
   limit,
   serverTimestamp,
+  increment,
 } from "@react-native-firebase/firestore";
-import { increment } from "@react-native-firebase/firestore/lib/modular/FieldValue";
 import type { FirebaseFirestoreTypes } from "@react-native-firebase/firestore";
 import type { MoodEntry, Phq9Assessment } from "../types/models";
 import type {

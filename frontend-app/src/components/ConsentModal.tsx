@@ -155,10 +155,10 @@ export default function ConsentModal({ visible, onConsent }: ConsentModalProps) 
           <Text style={styles.sectionTitle}>4. DATA STORAGE & RETENTION</Text>
 
           <Text style={styles.body}>
-            All personal data is stored in two locations: locally on your device via encrypted
-            AsyncStorage, and remotely via Google Firebase Firestore, a cloud database service
-            operated by Google LLC. Remote data is stored in accordance with Firebase's data
-            retention and security policies.
+            All personal data is stored in two locations: locally on your device using on-device
+            application storage, and remotely via Google Firebase Firestore, a cloud database
+            service operated by Google LLC. Remote data is stored in accordance with Firebase's
+            data retention and security policies.
           </Text>
 
           <Text style={styles.body}>

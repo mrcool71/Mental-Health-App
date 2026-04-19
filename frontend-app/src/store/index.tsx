@@ -30,6 +30,7 @@ import {
   syncMoodEntry,
   syncPhq9Assessment,
   syncProfile,
+  syncSensorReading,
 } from "../services/cloudSync";
 
 function reducer(state: AppState, action: AppAction): AppState {
@@ -278,24 +279,35 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({
   const setLocationReading = useCallback<
     StoreContextProps["setLocationReading"]
   >(
-    (reading) =>
-      dispatch({ type: "SET_LOCATION_READING", payload: reading }),
+    (reading) => {
+      dispatch({ type: "SET_LOCATION_READING", payload: reading });
+      const user = getCurrentUser();
+      if (user && reading) syncSensorReading(user.uid, "location", reading);
+    },
     [],
   );
 
   const setAccelerometerReading = useCallback<
     StoreContextProps["setAccelerometerReading"]
   >(
-    (reading) =>
-      dispatch({ type: "SET_ACCELEROMETER_READING", payload: reading }),
+    (reading) => {
+      dispatch({ type: "SET_ACCELEROMETER_READING", payload: reading });
+      const user = getCurrentUser();
+      if (user && reading) {
+        syncSensorReading(user.uid, "accelerometer", reading);
+      }
+    },
     [],
   );
 
   const setMicrophoneReading = useCallback<
     StoreContextProps["setMicrophoneReading"]
   >(
-    (reading) =>
-      dispatch({ type: "SET_MICROPHONE_READING", payload: reading }),
+    (reading) => {
+      dispatch({ type: "SET_MICROPHONE_READING", payload: reading });
+      const user = getCurrentUser();
+      if (user && reading) syncSensorReading(user.uid, "microphone", reading);
+    },
     [],
   );
 

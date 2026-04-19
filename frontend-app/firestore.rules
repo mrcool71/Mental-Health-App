@@ -1,0 +1,317 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(uid) {
+      return isSignedIn() && request.auth.uid == uid;
+    }
+
+    function isOptionalTimestamp(field) {
+      return !(field in request.resource.data) ||
+        request.resource.data[field] == null ||
+        request.resource.data[field] is timestamp;
+    }
+
+    function validSeverity(value) {
+      return value in ['minimal', 'minor', 'moderate', 'moderatelySevere', 'severe'];
+    }
+
+    // Global app configuration. Read-only for clients.
+    match /app_config/{docId} {
+      allow read: if isSignedIn();
+      allow write: if false;
+    }
+
+    // Questionnaire metadata. Read-only for clients.
+    match /questionnaires/{docId} {
+      allow read: if isSignedIn();
+      allow write: if false;
+    }
+
+    // User root document.
+    match /users/{uid} {
+      allow read: if isOwner(uid);
+
+      allow create, update: if isOwner(uid)
+        && request.resource.data.keys().hasOnly([
+          'profile',
+          'onboarding',
+          'hasOnboarded',
+          'createdAt',
+          'updatedAt',
+          'lastSync'
+        ])
+        && (
+          !('hasOnboarded' in request.resource.data) ||
+          request.resource.data.hasOnboarded is bool
+        )
+        && (
+          !('profile' in request.resource.data) ||
+          request.resource.data.profile is map
+        )
+        && (
+          !('onboarding' in request.resource.data) ||
+          request.resource.data.onboarding is map
+        )
+        && isOptionalTimestamp('createdAt')
+        && isOptionalTimestamp('updatedAt')
+        && isOptionalTimestamp('lastSync');
+
+      allow delete: if false;
+
+      // Existing app cloud sync collection.
+      match /mood_entries/{entryId} {
+        allow read: if isOwner(uid);
+        allow create, update: if isOwner(uid)
+          && request.resource.data.keys().hasOnly([
+            'id',
+            'timestamp',
+            'mood',
+            'energy',
+            'note',
+            'syncedAt'
+          ])
+          && request.resource.data.id is string
+          && request.resource.data.timestamp is int
+          && request.resource.data.mood in ['happy', 'good', 'okay', 'sad']
+          && (
+            !('energy' in request.resource.data) ||
+            request.resource.data.energy in ['high', 'medium', 'low']
+          )
+          && (
+            !('note' in request.resource.data) ||
+            request.resource.data.note is string
+          )
+          && isOptionalTimestamp('syncedAt');
+        allow delete: if false;
+      }
+
+      // Full PHQ assessments.
+      match /phq9_assessments/{assessmentId} {
+        allow read: if isOwner(uid);
+        allow create, update: if isOwner(uid)
+          && request.resource.data.keys().hasOnly([
+            'id',
+            'timestamp',
+            'takenAt',
+            'answers',
+            'score',
+            'severity',
+            'cycleId',
+            'questionnaireVersion',
+            'syncedAt'
+          ])
+          && (
+            !('id' in request.resource.data) ||
+            request.resource.data.id is string
+          )
+          && (
+            !('timestamp' in request.resource.data) ||
+            request.resource.data.timestamp is int
+          )
+          && (
+            !('takenAt' in request.resource.data) ||
+            request.resource.data.takenAt is timestamp
+          )
+          && request.resource.data.answers is list
+          && request.resource.data.score is int
+          && request.resource.data.score >= 0
+          && request.resource.data.score <= 27
+          && validSeverity(request.resource.data.severity)
+          && (
+            !('cycleId' in request.resource.data) ||
+            request.resource.data.cycleId is string
+          )
+          && (
+            !('questionnaireVersion' in request.resource.data) ||
+            request.resource.data.questionnaireVersion is int
+          )
+          && isOptionalTimestamp('syncedAt');
+        allow delete: if false;
+      }
+
+      // Cycle header documents.
+      match /phq_cycles/{cycleId} {
+        allow read: if isOwner(uid);
+        allow create, update: if isOwner(uid)
+          && request.resource.data.keys().hasOnly([
+            'cycleNumber',
+            'questionnaireVersion',
+            'startsAt',
+            'endsAt',
+            'status',
+            'scheduledCount',
+            'answeredCount',
+            'completionRate',
+            'createdAt',
+            'updatedAt',
+            'note'
+          ])
+          && (
+            !('cycleNumber' in request.resource.data) ||
+            request.resource.data.cycleNumber is int
+          )
+          && (
+            !('questionnaireVersion' in request.resource.data) ||
+            request.resource.data.questionnaireVersion is int
+          )
+          && (
+            !('startsAt' in request.resource.data) ||
+            request.resource.data.startsAt is timestamp
+          )
+          && (
+            !('endsAt' in request.resource.data) ||
+            request.resource.data.endsAt == null || request.resource.data.endsAt is timestamp
+          )
+          && (
+            !('status' in request.resource.data) ||
+            request.resource.data.status in ['bootstrap', 'scheduled', 'active', 'completed', 'expired', 'cancelled']
+          )
+          && (
+            !('scheduledCount' in request.resource.data) ||
+            (request.resource.data.scheduledCount is int && request.resource.data.scheduledCount >= 0)
+          )
+          && (
+            !('answeredCount' in request.resource.data) ||
+            (request.resource.data.answeredCount is int && request.resource.data.answeredCount >= 0)
+          )
+          && (
+            !('completionRate' in request.resource.data) ||
+            request.resource.data.completionRate is number
+          )
+          && (
+            !('note' in request.resource.data) ||
+            request.resource.data.note is string
+          )
+          && isOptionalTimestamp('createdAt')
+          && isOptionalTimestamp('updatedAt');
+        allow delete: if false;
+
+        // Cycle question instances.
+        match /instances/{instanceId} {
+          allow read: if isOwner(uid);
+          allow create, update: if isOwner(uid)
+            && request.resource.data.keys().hasOnly([
+              'slotIndex',
+              'questionOrder',
+              'questionText',
+              'notificationId',
+              'scheduledFor',
+              'askedAt',
+              'answeredAt',
+              'selectedScore',
+              'selectedLabel',
+              'state',
+              'updatedAt'
+            ])
+            && (
+              !('slotIndex' in request.resource.data) ||
+              (request.resource.data.slotIndex is int && request.resource.data.slotIndex > 0)
+            )
+            && (
+              !('questionOrder' in request.resource.data) ||
+              (request.resource.data.questionOrder is int && request.resource.data.questionOrder > 0)
+            )
+            && (
+              !('questionText' in request.resource.data) ||
+              request.resource.data.questionText is string
+            )
+            && (
+              !('notificationId' in request.resource.data) ||
+              request.resource.data.notificationId is string
+            )
+            && (
+              !('scheduledFor' in request.resource.data) ||
+              request.resource.data.scheduledFor is timestamp
+            )
+            && (
+              !('askedAt' in request.resource.data) ||
+              request.resource.data.askedAt == null || request.resource.data.askedAt is timestamp
+            )
+            && (
+              !('answeredAt' in request.resource.data) ||
+              request.resource.data.answeredAt == null || request.resource.data.answeredAt is timestamp
+            )
+            && (
+              !('selectedScore' in request.resource.data) ||
+              (request.resource.data.selectedScore is int
+                && request.resource.data.selectedScore >= 0
+                && request.resource.data.selectedScore <= 3)
+            )
+            && (
+              !('selectedLabel' in request.resource.data) ||
+              request.resource.data.selectedLabel is string
+            )
+            && (
+              !('state' in request.resource.data) ||
+              request.resource.data.state in ['scheduled', 'answered', 'missed']
+            )
+            && isOptionalTimestamp('updatedAt');
+          allow delete: if false;
+        }
+      }
+
+      // Sensor bucketed docs for efficient storage.
+      match /sensor_buckets/{bucketId} {
+        allow read: if isOwner(uid);
+        allow create, update: if isOwner(uid)
+          && request.resource.data.keys().hasOnly([
+            'sensorType',
+            'bucketStart',
+            'bucketEnd',
+            'count',
+            'avgLat',
+            'avgLng',
+            'minSpeed',
+            'maxSpeed',
+            'avgSpeed',
+            'avgX',
+            'avgY',
+            'avgZ',
+            'avgMagnitude',
+            'peakMagnitude',
+            'avgDb',
+            'maxDb',
+            'sampleReadings',
+            'createdAt',
+            'updatedAt',
+            'note'
+          ])
+          && (
+            !('sensorType' in request.resource.data) ||
+            request.resource.data.sensorType in ['bootstrap', 'location', 'accelerometer', 'microphone']
+          )
+          && (
+            !('bucketStart' in request.resource.data) ||
+            request.resource.data.bucketStart == null || request.resource.data.bucketStart is timestamp
+          )
+          && (
+            !('bucketEnd' in request.resource.data) ||
+            request.resource.data.bucketEnd == null || request.resource.data.bucketEnd is timestamp
+          )
+          && (
+            !('count' in request.resource.data) ||
+            (request.resource.data.count is int && request.resource.data.count >= 0)
+          )
+          && (
+            !('sampleReadings' in request.resource.data) ||
+            request.resource.data.sampleReadings is list
+          )
+          && (
+            !('note' in request.resource.data) ||
+            request.resource.data.note is string
+          )
+          && isOptionalTimestamp('createdAt')
+          && isOptionalTimestamp('updatedAt');
+        allow delete: if false;
+      }
+    }
+
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

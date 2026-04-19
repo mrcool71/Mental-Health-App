@@ -6,6 +6,7 @@ import React, {
   useMemo,
   useReducer,
   useRef,
+  useState,
   ReactNode,
 } from "react";
 import {
@@ -54,6 +55,22 @@ function reducer(state: AppState, action: AppAction): AppState {
       };
     case "SET_ONBOARDED":
       return { ...state, hasOnboarded: true };
+    case "SET_CONSENT":
+      return {
+        ...state,
+        consentGiven: true,
+        consentTimestamp: action.payload.timestamp,
+        sensors: {
+          ...state.sensors,
+          enabled: {
+            location: true,
+            accelerometer: true,
+            microphone: true,
+          },
+          backgroundLocationEnabled: true,
+          backgroundSensorsEnabled: true,
+        },
+      };
     case "SET_SENSOR_ENABLED": {
       const { sensor, enabled } = action.payload;
       return {
@@ -126,8 +143,31 @@ function reducer(state: AppState, action: AppAction): AppState {
           microphone: action.payload,
         },
       };
-    case "RESTORE_STATE":
-      return { ...state, ...action.payload };
+    case "RESTORE_STATE": {
+      const { sensors: restoredSensors, ...restOfPayload } = action.payload;
+      return {
+        ...state,
+        ...restOfPayload,
+        sensors: restoredSensors
+          ? {
+              ...state.sensors,
+              ...restoredSensors,
+              enabled: {
+                ...state.sensors.enabled,
+                ...(restoredSensors.enabled ?? {}),
+              },
+              permissions: {
+                ...state.sensors.permissions,
+                ...(restoredSensors.permissions ?? {}),
+              },
+              errors: {
+                ...state.sensors.errors,
+                ...(restoredSensors.errors ?? {}),
+              },
+            }
+          : state.sensors,
+      };
+    }
     case "RESET":
       return initialState;
     default:
@@ -141,6 +181,7 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({
   children,
 }) => {
   const [state, dispatch] = useReducer(reducer, initialState);
+  const [isRestored, setIsRestored] = useState<boolean>(false);
   const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const isRestoredRef = useRef(false);
 
@@ -148,9 +189,20 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({
   useEffect(() => {
     loadState().then((saved) => {
       if (saved && Object.keys(saved).length > 0) {
-        dispatch({ type: "RESTORE_STATE", payload: saved });
+        const { sensors: savedSensors, ...rest } = saved;
+        const payload: Partial<AppState> = { ...rest };
+        if (savedSensors) {
+          payload.sensors = {
+            ...initialState.sensors,
+            ...(savedSensors.enabled ? { enabled: { ...initialState.sensors.enabled, ...savedSensors.enabled } } : {}),
+            ...(savedSensors.backgroundLocationEnabled !== undefined ? { backgroundLocationEnabled: savedSensors.backgroundLocationEnabled } : {}),
+            ...(savedSensors.backgroundSensorsEnabled !== undefined ? { backgroundSensorsEnabled: savedSensors.backgroundSensorsEnabled } : {}),
+          };
+        }
+        dispatch({ type: "RESTORE_STATE", payload });
       }
       isRestoredRef.current = true;
+      setIsRestored(true);
     });
   }, []);
 
@@ -165,12 +217,27 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({
         score: state.score,
         phq9History: state.phq9History,
         hasOnboarded: state.hasOnboarded,
+        consentGiven: state.consentGiven,
+        consentTimestamp: state.consentTimestamp,
+        sensorsEnabled: state.sensors.enabled,
+        backgroundLocationEnabled: state.sensors.backgroundLocationEnabled,
+        backgroundSensorsEnabled: state.sensors.backgroundSensorsEnabled,
       });
     }, 500);
     return () => {
       if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
     };
-  }, [state.history, state.score, state.phq9History, state.hasOnboarded]);
+  }, [
+    state.history,
+    state.score,
+    state.phq9History,
+    state.hasOnboarded,
+    state.consentGiven,
+    state.consentTimestamp,
+    state.sensors.enabled,
+    state.sensors.backgroundLocationEnabled,
+    state.sensors.backgroundSensorsEnabled,
+  ]);
 
   // Sync notification responses from AsyncStorage into memory on mount.
   // This restores responses that were saved by the background headless handler
@@ -231,9 +298,15 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({
   const setOnboarded = useCallback(
     () => {
       dispatch({ type: "SET_ONBOARDED" });
-      const user = getCurrentUser();
-      if (user) syncProfile(user.uid, { hasOnboarded: true });
     },
+    [],
+  );
+
+  const giveConsent = useCallback(
+    (timestamp?: number) => dispatch({ 
+      type: "SET_CONSENT", 
+      payload: { timestamp: timestamp ?? Date.now() } 
+    }),
     [],
   );
 
@@ -320,6 +393,7 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({
     () => ({
      
       state,
+      isRestored,
      
       addEntry,
      
@@ -327,6 +401,7 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({
      
       addPhq9Assessment,
       setOnboarded,
+      giveConsent,
       setSensorEnabled,
       setBackgroundLocationEnabled,
       setBackgroundSensorsEnabled,
@@ -338,7 +413,7 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({
      
       reset,
     }),
-    [state],
+    [state, isRestored],
   );
 
   return (

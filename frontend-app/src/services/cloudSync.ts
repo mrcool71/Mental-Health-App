@@ -98,7 +98,11 @@ export async function loadCloudPhq9Assessments(
 // Profile
 export async function syncProfile(
   userId: string,
-  profile: { hasOnboarded: boolean },
+  profile: {
+    hasOnboarded: boolean;
+    consentGiven: boolean;
+    consentTimestamp: number | null;
+  },
 ): Promise<void> {
   try {
     await setDoc(

@@ -26,7 +26,9 @@ type NavigatorContentProps = {
 };
 
 function NavigatorContent({ currentRoute, navRef, user }: NavigatorContentProps) {
-  const { state } = useStore();
+  const { state, isRestored } = useStore();
+
+  if (!isRestored) return null;
 
   // Not signed in → show Login screen only
   if (!user) {

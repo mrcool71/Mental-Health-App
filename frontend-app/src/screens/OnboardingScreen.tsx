@@ -8,13 +8,17 @@ import onboardingStyles from "../styles/onboarding.styles";
 import theme from "../theme/theme";
 import { RootStackScreenProps } from "../types/navigation";
 import { hexToRgba } from "../utilities/color";
+import ConsentModal from "../components/ConsentModal";
+import { getCurrentUser } from "../services/auth";
+import { syncProfile } from "../services/cloudSync";
 
 const OnboardingScreen: React.FC<RootStackScreenProps<"Onboarding">> = ({
   navigation,
 }) => {
-  const { setOnboarded } = useStore();
+  const { setOnboarded, giveConsent } = useStore();
   const insets = useSafeAreaInsets();
   const [currentIndex, setCurrentIndex] = useState<number>(0);
+  const [showConsent, setShowConsent] = useState<boolean>(false);
 
   const dotWidths = useRef<Animated.Value[]>(
     ONBOARDING_SLIDES.map((_, index) => new Animated.Value(index === 0 ? 24 : 8)),
@@ -38,11 +42,25 @@ const OnboardingScreen: React.FC<RootStackScreenProps<"Onboarding">> = ({
 
   const finishOnboarding = () => {
     setOnboarded();
-    navigation.reset({
-      index: 0,
-      routes: [{ name: "Tabs" }],
-    });
+    setShowConsent(true);
   };
+
+  async function handleConsent() {
+    const timestamp = Date.now();
+    giveConsent(timestamp);
+    setShowConsent(false);
+
+    const user = getCurrentUser();
+    if (user) {
+      await syncProfile(user.uid, {
+        hasOnboarded: true,
+        consentGiven: true,
+        consentTimestamp: timestamp,
+      }).catch(() => undefined);
+    }
+
+    navigation.replace("Tabs", { screen: "Home" });
+  }
 
   const handleNext = () => {
     if (isLastSlide) {
@@ -116,6 +134,7 @@ const OnboardingScreen: React.FC<RootStackScreenProps<"Onboarding">> = ({
           </TouchableOpacity>
         </View>
       </View>
+      <ConsentModal visible={showConsent} onConsent={handleConsent} />
     </View>
   );
 };

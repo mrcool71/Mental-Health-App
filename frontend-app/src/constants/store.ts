@@ -13,6 +13,8 @@ export const initialState: AppState = {
   notificationResponses: [],
   phq9History: [],
   hasOnboarded: false,
+  consentGiven: false,
+  consentTimestamp: null,
   sensors: {
     enabled: {
       location: false,

@@ -15,10 +15,12 @@ import type {
 
 export interface StoreContextProps {
   state: AppState;
+  isRestored: boolean;
   addEntry: (entry: MoodEntry) => void;
   addNotificationResponse: (response: NotificationResponse) => void;
   addPhq9Assessment: (assessment: Phq9Assessment) => void;
   setOnboarded: () => void;
+  giveConsent: (timestamp?: number) => void;
   setSensorEnabled: (sensor: SensorKey, enabled: boolean) => void;
   setBackgroundLocationEnabled: (enabled: boolean) => void;
   setBackgroundSensorsEnabled: (enabled: boolean) => void;

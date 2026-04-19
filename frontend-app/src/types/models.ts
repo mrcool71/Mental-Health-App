@@ -52,6 +52,8 @@ export interface AppState {
   notificationResponses: NotificationResponse[];
   phq9History: Phq9Assessment[];
   hasOnboarded: boolean;
+  consentGiven: boolean;
+  consentTimestamp: number | null;
   sensors: SensorsState;
 }
 
@@ -70,4 +72,5 @@ export type AppAction =
   | { type: "SET_ACCELEROMETER_READING"; payload?: AccelerometerReading }
   | { type: "SET_MICROPHONE_READING"; payload?: MicrophoneReading }
   | { type: "RESTORE_STATE"; payload: Partial<AppState> }
+  | { type: "SET_CONSENT"; payload: { timestamp: number } }
   | { type: "RESET" };

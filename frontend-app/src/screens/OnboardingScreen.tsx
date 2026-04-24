@@ -15,7 +15,7 @@ import { syncProfile } from "../services/cloudSync";
 const OnboardingScreen: React.FC<RootStackScreenProps<"Onboarding">> = ({
   navigation,
 }) => {
-  const { setOnboarded, giveConsent } = useStore();
+  const { state, setOnboarded, giveConsent } = useStore();
   const insets = useSafeAreaInsets();
   const [currentIndex, setCurrentIndex] = useState<number>(0);
   const [showConsent, setShowConsent] = useState<boolean>(false);
@@ -23,6 +23,12 @@ const OnboardingScreen: React.FC<RootStackScreenProps<"Onboarding">> = ({
   const dotWidths = useRef<Animated.Value[]>(
     ONBOARDING_SLIDES.map((_, index) => new Animated.Value(index === 0 ? 24 : 8)),
   ).current;
+
+  useEffect(() => {
+    if (state.hasOnboarded && !state.consentGiven) {
+      setShowConsent(true);
+    }
+  }, [state.hasOnboarded, state.consentGiven]);
 
   useEffect(() => {
     Animated.parallel(

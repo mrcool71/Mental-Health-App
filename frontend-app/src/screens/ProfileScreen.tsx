@@ -502,8 +502,15 @@ const ProfileScreen: React.FC<BottomTabScreenProps<"Profile">> = ({
                 text: "Log Out",
                 style: "destructive",
                 onPress: async () => {
-                  await signOut();
-                  reset();
+                  try {
+                    await signOut();
+                    reset();
+                  } catch {
+                    Alert.alert(
+                      "Log Out Failed",
+                      "We couldn't log you out right now. Please try again.",
+                    );
+                  }
                 },
               },
             ]);

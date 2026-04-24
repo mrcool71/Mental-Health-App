@@ -32,7 +32,7 @@ Our primary focus is **Privacy and Cloud Resiliency**. The app strictly guards b
 Don't want to mess with the code? Just want the app locally?
 1. Go to the **[Releases Top Tab](../../releases/)** on GitHub.
 2. Find the newest `v1.x.x` release and expand the *Assets* section at the very bottom.
-3. Download the `app.apk` directly onto your Android device!
+3. Download the `Mental-Wellbeing.apk` directly onto your Android device!
 4. Install, bypass "Unknown Sources" if prompted, create an account, and start tracking your wellbeing!
 
 ---

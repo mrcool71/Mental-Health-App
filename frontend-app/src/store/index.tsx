@@ -31,7 +31,6 @@ import {
   syncMoodEntry,
   syncPhq9Assessment,
   syncSensorReading,
-  syncNotificationResponse,
 } from "../services/cloudSync";
 
 function reducer(state: AppState, action: AppAction): AppState {

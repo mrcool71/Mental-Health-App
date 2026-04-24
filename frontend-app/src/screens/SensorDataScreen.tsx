@@ -61,9 +61,23 @@ const SensorDataScreen: React.FC<BottomTabScreenProps<"SensorData">> = () => {
   const { sensors } = state;
   const { location, accelerometer, microphone } = sensors;
 
-  const locationOn = sensors.enabled.location || sensors.backgroundLocationEnabled;
-  const accelOn = sensors.enabled.accelerometer || sensors.backgroundSensorsEnabled;
-  const micOn = sensors.enabled.microphone || sensors.backgroundSensorsEnabled;
+  const FRESHNESS_MS = 30_000;
+  const now = Date.now();
+
+  const locationOn =
+    (sensors.enabled.location || sensors.backgroundLocationEnabled) &&
+    !!location &&
+    now - (location.timestamp ?? 0) < FRESHNESS_MS;
+
+  const accelOn =
+    (sensors.enabled.accelerometer || sensors.backgroundSensorsEnabled) &&
+    !!accelerometer &&
+    now - (accelerometer.timestamp ?? 0) < FRESHNESS_MS;
+
+  const micOn =
+    (sensors.enabled.microphone || sensors.backgroundSensorsEnabled) &&
+    !!microphone &&
+    now - (microphone.timestamp ?? 0) < FRESHNESS_MS;
 
   const insets = useSafeAreaInsets();
   const bottomPad = TAB_BAR_HEIGHT + theme.spacing.md + insets.bottom;

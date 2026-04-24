@@ -109,6 +109,68 @@ export default StyleSheet.create({
   switchDisabledRow: {
     opacity: 0.5,
   },
+  modalBackdrop: {
+    flex: 1,
+    backgroundColor: "rgba(0, 0, 0, 0.45)",
+    justifyContent: "center",
+    padding: theme.spacing.lg,
+  },
+  modalCard: {
+    backgroundColor: theme.colors.surface,
+    borderRadius: theme.radii.lg,
+    padding: theme.spacing.lg,
+    gap: theme.spacing.md,
+  },
+  modalTitle: {
+    color: theme.colors.textPrimary,
+    fontFamily: theme.typography.fontFamilyDisplay,
+    fontSize: theme.typography.sizes.h3,
+    fontWeight: "700",
+  },
+  modalMessage: {
+    color: theme.colors.textSecondary,
+    fontFamily: theme.typography.fontFamilyPrimary,
+    fontSize: theme.typography.sizes.body,
+  },
+  modalInput: {
+    backgroundColor: theme.colors.backgroundAlt,
+    borderRadius: theme.radii.md,
+    color: theme.colors.textPrimary,
+    fontFamily: theme.typography.fontFamilyPrimary,
+    fontSize: theme.typography.sizes.body,
+    paddingHorizontal: theme.spacing.md,
+    paddingVertical: theme.spacing.md,
+  },
+  modalActions: {
+    flexDirection: "row",
+    justifyContent: "flex-end",
+    gap: theme.spacing.sm,
+  },
+  modalButton: {
+    minWidth: 96,
+    alignItems: "center",
+    borderRadius: theme.radii.md,
+    paddingHorizontal: theme.spacing.md,
+    paddingVertical: theme.spacing.sm,
+  },
+  modalButtonPrimary: {
+    backgroundColor: theme.colors.primary,
+  },
+  modalButtonDisabled: {
+    opacity: 0.5,
+  },
+  modalButtonText: {
+    color: theme.colors.textSecondary,
+    fontFamily: theme.typography.fontFamilyPrimary,
+    fontSize: theme.typography.sizes.body,
+    fontWeight: "600",
+  },
+  modalButtonTextPrimary: {
+    color: theme.colors.white,
+    fontFamily: theme.typography.fontFamilyPrimary,
+    fontSize: theme.typography.sizes.body,
+    fontWeight: "600",
+  },
   footer: {
     marginTop: theme.spacing.xl,
     alignItems: "center",

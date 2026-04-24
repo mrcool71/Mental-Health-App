@@ -46,12 +46,21 @@ export interface Phq9Assessment {
   severity: Phq9Severity;
 }
 
+export interface ProfileState {
+  displayName: string;
+  dailyRemindersEnabled: boolean;
+  preferredCheckInTimeMinutes: number;
+}
+
 export interface AppState {
   history: MoodEntry[];
   score: number;
   notificationResponses: NotificationResponse[];
   phq9History: Phq9Assessment[];
   hasOnboarded: boolean;
+  consentGiven: boolean;
+  consentTimestamp: number | null;
+  profile: ProfileState;
   sensors: SensorsState;
 }
 
@@ -69,5 +78,10 @@ export type AppAction =
   | { type: "SET_LOCATION_READING"; payload?: LocationReading }
   | { type: "SET_ACCELEROMETER_READING"; payload?: AccelerometerReading }
   | { type: "SET_MICROPHONE_READING"; payload?: MicrophoneReading }
+  | { type: "SET_PROFILE_NAME"; payload: string }
+  | { type: "SET_DAILY_REMINDERS_ENABLED"; payload: boolean }
+  | { type: "SET_PREFERRED_CHECKIN_TIME"; payload: number }
+  | { type: "CLEAR_MOOD_HISTORY" }
   | { type: "RESTORE_STATE"; payload: Partial<AppState> }
+  | { type: "SET_CONSENT"; payload: { timestamp: number } }
   | { type: "RESET" };

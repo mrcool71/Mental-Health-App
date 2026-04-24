@@ -26,7 +26,9 @@ type NavigatorContentProps = {
 };
 
 function NavigatorContent({ currentRoute, navRef, user }: NavigatorContentProps) {
-  const { state } = useStore();
+  const { state, isRestored } = useStore();
+
+  if (!isRestored) return null;
 
   // Not signed in → show Login screen only
   if (!user) {
@@ -55,7 +57,7 @@ function NavigatorContent({ currentRoute, navRef, user }: NavigatorContentProps)
         />
       )}
       <Stack.Navigator
-        initialRouteName={state.hasOnboarded ? "Tabs" : "Onboarding"}
+        initialRouteName={state.hasOnboarded && state.consentGiven ? "Tabs" : "Onboarding"}
         screenOptions={NAV_STACK_SCREEN_OPTIONS}
       >
         <Stack.Screen name="Onboarding" component={OnboardingScreen} />

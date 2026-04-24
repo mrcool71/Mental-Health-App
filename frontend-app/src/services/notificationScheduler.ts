@@ -6,6 +6,7 @@ import notifee, {
 import { Platform } from "react-native";
 import questionsData from "../../assets/mental-health-questions.json";
 import {
+  DEFAULT_CHECK_IN_TIME_MINUTES,
   NOTIFICATION_CHANNEL_ID,
   NOTIFICATION_ID_PREFIX,
 } from "../constants/notifications";
@@ -13,6 +14,7 @@ import {
   buildDailyQuestionBatch,
   buildNotificationPayload,
 } from "../utilities/questionHelpers";
+import { loadNotificationPreferences } from "../utilities/stateStorage";
 
 export async function setupNotificationChannel(): Promise<void> {
   if (Platform.OS !== "android") return;
@@ -47,7 +49,10 @@ export async function requestNotificationPermission(): Promise<boolean> {
   return settings.authorizationStatus >= 1;
 }
 
-export async function scheduleNotifications(): Promise<void> {
+export async function scheduleNotifications(options?: {
+  enabled?: boolean;
+  preferredTimeMinutes?: number;
+}): Promise<void> {
   const existing = await notifee.getTriggerNotifications();
   await Promise.all(
     existing
@@ -55,7 +60,18 @@ export async function scheduleNotifications(): Promise<void> {
       .map((n) => notifee.cancelTriggerNotification(n.notification.id!)),
   );
 
-  const batch = buildDailyQuestionBatch();
+  const storedPreferences = await loadNotificationPreferences();
+  const enabled = options?.enabled ?? storedPreferences.dailyRemindersEnabled;
+
+  if (!enabled) {
+    return;
+  }
+
+  const preferredTimeMinutes =
+    options?.preferredTimeMinutes ??
+    storedPreferences.preferredCheckInTimeMinutes ??
+    DEFAULT_CHECK_IN_TIME_MINUTES;
+  const batch = buildDailyQuestionBatch(preferredTimeMinutes);
 
   await Promise.all(
     batch.map((item) => {

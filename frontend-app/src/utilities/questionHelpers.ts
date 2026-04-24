@@ -1,10 +1,10 @@
 import questionsData from "../../assets/mental-health-questions.json";
 import { AndroidImportance } from "@notifee/react-native";
 import {
+  DEFAULT_CHECK_IN_TIME_MINUTES,
   NOTIFICATION_CHANNEL_ID,
   NOTIFICATION_ID_PREFIX,
   SCHEDULE_DAYS,
-  DAILY_SLOTS,
 } from "../constants/notifications";
 
 export type Question = (typeof questionsData.questions)[number];
@@ -22,19 +22,6 @@ function shuffle<T>(arr: T[]): T[] {
     [copy[i], copy[j]] = [copy[j], copy[i]];
   }
   return copy;
-}
-
-function pickTwoDistinct(
-  pool: Question[],
-  start: number,
-): [Question, Question] {
-  const slice = pool.slice(start);
-  if (slice.length === 0) throw new Error("No questions available");
-  if (slice.length === 1) return [slice[0], slice[0]];
-  return [
-    slice[0],
-    slice[1].id !== slice[0].id || slice.length < 3 ? slice[1] : slice[2],
-  ];
 }
 
 function pad2(n: number): string {
@@ -63,37 +50,42 @@ function toTimestamp(day: Date, hour: number, minute: number): number {
   ).getTime();
 }
 
-/** Builds a flat list of {id, question, timestamp} for the next SCHEDULE_DAYS. */
-export function buildDailyQuestionBatch(): ScheduledQuestion[] {
+function splitTime(totalMinutes: number): { hour: number; minute: number } {
+  const hour = Math.floor(totalMinutes / 60);
+  const minute = totalMinutes % 60;
+  return { hour, minute };
+}
+
+export function buildDailyQuestionBatch(
+  preferredTimeMinutes: number = DEFAULT_CHECK_IN_TIME_MINUTES,
+): ScheduledQuestion[] {
   const now = Date.now();
   const today = new Date();
   const batch: ScheduledQuestion[] = [];
+  const { hour, minute } = splitTime(preferredTimeMinutes);
 
   let pool = shuffle(questionsData.questions);
   let idx = 0;
 
   for (let day = 0; day < SCHEDULE_DAYS; day++) {
-    if (idx + 2 > pool.length) {
+    if (idx >= pool.length) {
       pool = shuffle(questionsData.questions);
       idx = 0;
     }
 
-    const [q1, q2] = pickTwoDistinct(pool, idx);
-    idx += 2;
+    const question = pool[idx];
+    idx += 1;
 
     const date = makeDate(today, day);
     const key = localDateKey(date);
+    const ts = toTimestamp(date, hour, minute);
+    if (ts <= now + 60_000) continue;
 
-    for (const slot of DAILY_SLOTS) {
-      const ts = toTimestamp(date, slot.hour, slot.minute);
-      if (ts <= now + 60_000) continue;
-
-      batch.push({
-        id: `${NOTIFICATION_ID_PREFIX}${key}_${slot.slotIndex}`,
-        question: slot.slotIndex === 0 ? q1 : q2,
-        timestamp: ts,
-      });
-    }
+    batch.push({
+      id: `${NOTIFICATION_ID_PREFIX}${key}_0`,
+      question,
+      timestamp: ts,
+    });
   }
 
   return batch;

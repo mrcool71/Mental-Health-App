@@ -25,7 +25,7 @@ const ScreenScrollView: React.FC<ScreenScrollViewProps> = ({
   ];
 
   const resolvedStyle = contentContainerStyle
-    ? [contentContainerStyle, { paddingBottom: autoBottomPad }]
+    ? [{ paddingBottom: autoBottomPad }, contentContainerStyle]
     : defaultStyle;
 
   return (

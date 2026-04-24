@@ -41,6 +41,7 @@ export function useBackgroundLocation(enabled: boolean) {
 
     return () => {
       cancelled = true;
+      stopBackgroundLocation().catch(() => undefined);
     };
   }, [enabled, setSensorError, setSensorPermission]);
 }

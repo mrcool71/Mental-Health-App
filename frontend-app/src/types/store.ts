@@ -21,6 +21,9 @@ export interface StoreContextProps {
   addPhq9Assessment: (assessment: Phq9Assessment) => void;
   setOnboarded: () => void;
   giveConsent: (timestamp?: number) => void;
+  setProfileName: (name: string) => void;
+  setDailyRemindersEnabled: (enabled: boolean) => void;
+  setPreferredCheckInTime: (minutes: number) => void;
   setSensorEnabled: (sensor: SensorKey, enabled: boolean) => void;
   setBackgroundLocationEnabled: (enabled: boolean) => void;
   setBackgroundSensorsEnabled: (enabled: boolean) => void;
@@ -29,5 +32,6 @@ export interface StoreContextProps {
   setLocationReading: (reading?: LocationReading) => void;
   setAccelerometerReading: (reading?: AccelerometerReading) => void;
   setMicrophoneReading: (reading?: MicrophoneReading) => void;
+  clearMoodHistory: () => void;
   reset: () => void;
 }

@@ -34,7 +34,7 @@ export default function Header({
         style={styles.profileWrap}
       >
         <Image
-          source={{ uri: "https://i.pravatar.cc/200?img=47" }}
+          source={{ uri: "https://www.gravatar.com/avatar/0?d=mp&f=y" }}
           style={styles.avatar}
         />
       </TouchableOpacity>

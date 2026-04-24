@@ -2,6 +2,7 @@ import {
   getFirestore,
   collection,
   doc,
+  deleteDoc,
   setDoc,
   getDoc,
   getDocs,
@@ -10,9 +11,10 @@ import {
   limit,
   serverTimestamp,
   increment,
+  writeBatch,
 } from "@react-native-firebase/firestore";
 import type { FirebaseFirestoreTypes } from "@react-native-firebase/firestore";
-import type { MoodEntry, Phq9Assessment } from "../types/models";
+import type { MoodEntry, Phq9Assessment, NotificationResponse } from "../types/models";
 import type {
   AccelerometerReading,
   LocationReading,
@@ -21,6 +23,13 @@ import type {
 
 function userDocRef(userId: string) {
   return doc(getFirestore(), "users", userId);
+}
+
+export interface CloudUserProfile {
+  hasOnboarded?: boolean;
+  consentGiven?: boolean;
+  consentTimestamp?: number | null;
+  displayName?: string;
 }
 
 // Mood entries
@@ -98,11 +107,7 @@ export async function loadCloudPhq9Assessments(
 // Profile
 export async function syncProfile(
   userId: string,
-  profile: {
-    hasOnboarded: boolean;
-    consentGiven: boolean;
-    consentTimestamp: number | null;
-  },
+  profile: CloudUserProfile,
 ): Promise<void> {
   try {
     await setDoc(
@@ -120,14 +125,49 @@ export async function syncProfile(
 
 export async function loadCloudProfile(
   userId: string,
-): Promise<{ hasOnboarded?: boolean } | null> {
+): Promise<CloudUserProfile | null> {
   try {
     const snapshot = await getDoc(userDocRef(userId));
     if (!snapshot.exists()) return null;
-    return snapshot.data() as { hasOnboarded?: boolean };
+    return snapshot.data() as CloudUserProfile;
   } catch (e) {
     console.error("[cloudSync] loadCloudProfile failed:", e);
     return null;
+  }
+}
+
+export async function syncNotificationResponse(
+  userId: string,
+  response: NotificationResponse,
+): Promise<void> {
+  try {
+    const ref = doc(
+      collection(getFirestore(), "users", userId, "notification_responses"),
+      response.id,
+    );
+    await setDoc(ref, {
+      ...response,
+      syncedAt: serverTimestamp(),
+    });
+  } catch (e) {
+    console.error("[cloudSync] syncNotificationResponse failed:", e);
+  }
+}
+
+export async function loadCloudNotificationResponses(
+  userId: string,
+): Promise<NotificationResponse[]> {
+  try {
+    const col = collection(getFirestore(), "users", userId, "notification_responses");
+    const q = query(col, orderBy("timestamp", "desc"), limit(100));
+    const snapshot = await getDocs(q);
+    return snapshot.docs.map(
+      (docSnap: FirebaseFirestoreTypes.QueryDocumentSnapshot) =>
+        docSnap.data() as NotificationResponse,
+    );
+  } catch (e) {
+    console.error("[cloudSync] loadCloudNotificationResponses failed:", e);
+    return [];
   }
 }
 
@@ -147,6 +187,49 @@ export async function loadAllCloudData(userId: string): Promise<{
     phq9History,
     hasOnboarded: profile?.hasOnboarded ?? false,
   };
+}
+
+const DELETE_BATCH_SIZE = 400;
+
+async function deleteUserCollection(
+  userId: string,
+  collectionName: "mood_entries" | "phq9_assessments" | "sensor_buckets" | "notification_responses",
+): Promise<void> {
+  while (true) {
+    const snapshot = await getDocs(
+      query(
+        collection(getFirestore(), "users", userId, collectionName),
+        limit(DELETE_BATCH_SIZE),
+      ),
+    );
+
+    if (snapshot.empty) {
+      return;
+    }
+
+    const batch = writeBatch(getFirestore());
+    snapshot.docs.forEach(
+      (docSnap: FirebaseFirestoreTypes.QueryDocumentSnapshot) =>
+        batch.delete(docSnap.ref),
+    );
+    await batch.commit();
+
+    if (snapshot.size < DELETE_BATCH_SIZE) {
+      return;
+    }
+  }
+}
+
+export async function deleteMoodHistory(userId: string): Promise<void> {
+  await deleteUserCollection(userId, "mood_entries");
+}
+
+export async function deleteUserAccountData(userId: string): Promise<void> {
+  await deleteUserCollection(userId, "mood_entries");
+  await deleteUserCollection(userId, "phq9_assessments");
+  await deleteUserCollection(userId, "sensor_buckets");
+  await deleteUserCollection(userId, "notification_responses");
+  await deleteDoc(userDocRef(userId));
 }
 
 // Sensor buckets

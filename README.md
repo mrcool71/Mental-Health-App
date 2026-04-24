@@ -35,6 +35,9 @@ Don't want to mess with the code? Just want the app locally?
 3. Download the `Mental-Wellbeing.apk` directly onto your Android device!
 4. Install, bypass "Unknown Sources" if prompted, create an account, and start tracking your wellbeing!
 
+> [NOTE]
+> This is an early release. There may be bugs or unexpected behaviour. If you encounter any issues, please report them via the Issues tab.
+
 ---
 
 ## 💻 For Developers: Running Locally 

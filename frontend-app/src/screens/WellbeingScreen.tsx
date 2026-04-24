@@ -103,16 +103,24 @@ const WellbeingScreen: React.FC<BottomTabScreenProps<"Wellbeing">> = () => {
         </View>
       </View>
 
-      <View style={styles.ringCard}>
-        <ProgressRing
-          size={180}
-          value={breakdown.overall}
-          max={WELLBEING_MAX_SCORE}
-          label="Wellbeing"
-          sublabel={`${breakdown.overall}/${WELLBEING_MAX_SCORE}`}
-        />
-        <Text style={styles.scoreLabel}>{scoreLabel}</Text>
-      </View>
+      {state.history.length > 0 ? (
+        <View style={styles.ringCard}>
+          <ProgressRing
+            size={180}
+            value={breakdown.overall}
+            max={WELLBEING_MAX_SCORE}
+            label="Wellbeing"
+            sublabel={`${breakdown.overall}/${WELLBEING_MAX_SCORE}`}
+          />
+          <Text style={styles.scoreLabel}>{scoreLabel}</Text>
+        </View>
+      ) : (
+        <View style={styles.ringCard}>
+          <Text style={{ textAlign: "center", color: "#666", padding: 20 }}>
+            Complete a check-in on the Home screen to see your wellbeing score.
+          </Text>
+        </View>
+      )}
 
       <View style={styles.phqCard}>
         <Text style={styles.phqTitle}>Latest PHQ-9</Text>
@@ -138,20 +146,22 @@ const WellbeingScreen: React.FC<BottomTabScreenProps<"Wellbeing">> = () => {
         </Text>
       </View>
 
-      <View>
-        <Text style={globalStyles.sectionHeader}>Score Breakdown</Text>
-        <View style={globalStyles.moodGrid}>
-          {stats.map((stat) => (
-            <View key={stat.label} style={styles.statCard}>
-              <Text style={styles.statLabel}>{stat.label}</Text>
-              <Text style={styles.statValue}>{stat.value} /100</Text>
-              <ProgressBar value={stat.value} color={stat.color} />
-            </View>
-          ))}
+      {state.history.length > 0 && (
+        <View>
+          <Text style={globalStyles.sectionHeader}>Score Breakdown</Text>
+          <View style={globalStyles.moodGrid}>
+            {stats.map((stat) => (
+              <View key={stat.label} style={styles.statCard}>
+                <Text style={styles.statLabel}>{stat.label}</Text>
+                <Text style={styles.statValue}>{stat.value} /100</Text>
+                <ProgressBar value={stat.value} color={stat.color} />
+              </View>
+            ))}
+          </View>
         </View>
-      </View>
+      )}
 
-      {tips.length ? (
+      {state.history.length > 0 && tips.length ? (
         <View>
           <Text style={globalStyles.sectionHeader}>Tips to Improve</Text>
           <View style={styles.tipsCard}>

@@ -53,8 +53,9 @@ function useBackgroundDataBridge(active: boolean) {
       ): number => {
         const newItems = list.filter((r) => r.timestamp > lastSync);
         if (newItems.length > 0) {
-          newItems.sort((a, b) => a.timestamp - b.timestamp).forEach(setter);
-          return Math.max(...newItems.map((r) => r.timestamp));
+          const latestItem = newItems.sort((a, b) => a.timestamp - b.timestamp)[newItems.length - 1];
+          setter(latestItem);
+          return latestItem.timestamp;
         }
         return lastSync;
       };

@@ -1,0 +1,31 @@
+# Android/iOS local builds
+frontend-app/android/
+frontend-app/ios/
+
+# Node modules
+frontend-app/node_modules/
+
+# Expo cache
+frontend-app/.expo/
+
+# Build output
+frontend-app/dist/
+frontend-app/build/
+
+# Native build artifacts inside node_modules
+frontend-app/node_modules/**/android/build/
+frontend-app/node_modules/**/android/.cxx/
+
+# Hermes other platform binaries
+frontend-app/node_modules/react-native/sdks/hermesc/osx-bin/
+frontend-app/node_modules/react-native/sdks/hermesc/win64-bin/
+
+# Firebase source maps
+frontend-app/node_modules/firebase/**/*.map
+
+# TypeScript compiler
+frontend-app/node_modules/typescript/
+
+# Misc
+*.log
+.DS_Store

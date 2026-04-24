@@ -6,6 +6,7 @@ import {
   onAuthStateChanged as firebaseOnAuthStateChanged,
   sendPasswordResetEmail,
   reauthenticateWithCredential,
+  deleteUser,
   EmailAuthProvider,
 } from "@react-native-firebase/auth";
 import type { FirebaseAuthTypes } from "@react-native-firebase/auth";
@@ -76,7 +77,7 @@ export async function deleteAccount(password: string): Promise<void> {
   }
 
   await notifee.cancelAllNotifications();
-  await user.delete();
+  await deleteUser(user);
 }
 
 /**

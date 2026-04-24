@@ -30,7 +30,6 @@ import { getCurrentUser } from "../services/auth";
 import {
   syncMoodEntry,
   syncPhq9Assessment,
-  syncProfile,
   syncSensorReading,
 } from "../services/cloudSync";
 
@@ -69,6 +68,30 @@ function reducer(state: AppState, action: AppAction): AppState {
           },
           backgroundLocationEnabled: true,
           backgroundSensorsEnabled: true,
+        },
+      };
+    case "SET_PROFILE_NAME":
+      return {
+        ...state,
+        profile: {
+          ...state.profile,
+          displayName: action.payload,
+        },
+      };
+    case "SET_DAILY_REMINDERS_ENABLED":
+      return {
+        ...state,
+        profile: {
+          ...state.profile,
+          dailyRemindersEnabled: action.payload,
+        },
+      };
+    case "SET_PREFERRED_CHECKIN_TIME":
+      return {
+        ...state,
+        profile: {
+          ...state.profile,
+          preferredCheckInTimeMinutes: action.payload,
         },
       };
     case "SET_SENSOR_ENABLED": {
@@ -143,11 +166,27 @@ function reducer(state: AppState, action: AppAction): AppState {
           microphone: action.payload,
         },
       };
+    case "CLEAR_MOOD_HISTORY":
+      return {
+        ...state,
+        history: [],
+        score: calculateScore([]),
+      };
     case "RESTORE_STATE": {
-      const { sensors: restoredSensors, ...restOfPayload } = action.payload;
+      const {
+        sensors: restoredSensors,
+        profile: restoredProfile,
+        ...restOfPayload
+      } = action.payload;
       return {
         ...state,
         ...restOfPayload,
+        profile: restoredProfile
+          ? {
+              ...state.profile,
+              ...restoredProfile,
+            }
+          : state.profile,
         sensors: restoredSensors
           ? {
               ...state.sensors,
@@ -189,8 +228,14 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({
   useEffect(() => {
     loadState().then((saved) => {
       if (saved && Object.keys(saved).length > 0) {
-        const { sensors: savedSensors, ...rest } = saved;
+        const { sensors: savedSensors, profile: savedProfile, ...rest } = saved;
         const payload: Partial<AppState> = { ...rest };
+        if (savedProfile) {
+          payload.profile = {
+            ...initialState.profile,
+            ...savedProfile,
+          };
+        }
         if (savedSensors) {
           payload.sensors = {
             ...initialState.sensors,
@@ -219,6 +264,9 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({
         hasOnboarded: state.hasOnboarded,
         consentGiven: state.consentGiven,
         consentTimestamp: state.consentTimestamp,
+        displayName: state.profile.displayName,
+        dailyRemindersEnabled: state.profile.dailyRemindersEnabled,
+        preferredCheckInTimeMinutes: state.profile.preferredCheckInTimeMinutes,
         sensorsEnabled: state.sensors.enabled,
         backgroundLocationEnabled: state.sensors.backgroundLocationEnabled,
         backgroundSensorsEnabled: state.sensors.backgroundSensorsEnabled,
@@ -234,6 +282,9 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({
     state.hasOnboarded,
     state.consentGiven,
     state.consentTimestamp,
+    state.profile.displayName,
+    state.profile.dailyRemindersEnabled,
+    state.profile.preferredCheckInTimeMinutes,
     state.sensors.enabled,
     state.sensors.backgroundLocationEnabled,
     state.sensors.backgroundSensorsEnabled,
@@ -307,6 +358,27 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({
       type: "SET_CONSENT", 
       payload: { timestamp: timestamp ?? Date.now() } 
     }),
+    [],
+  );
+
+  const setProfileName = useCallback<StoreContextProps["setProfileName"]>(
+    (name) => dispatch({ type: "SET_PROFILE_NAME", payload: name }),
+    [],
+  );
+
+  const setDailyRemindersEnabled = useCallback<
+    StoreContextProps["setDailyRemindersEnabled"]
+  >(
+    (enabled) =>
+      dispatch({ type: "SET_DAILY_REMINDERS_ENABLED", payload: enabled }),
+    [],
+  );
+
+  const setPreferredCheckInTime = useCallback<
+    StoreContextProps["setPreferredCheckInTime"]
+  >(
+    (minutes) =>
+      dispatch({ type: "SET_PREFERRED_CHECKIN_TIME", payload: minutes }),
     [],
   );
 
@@ -389,6 +461,11 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({
     [],
   );
 
+  const clearMoodHistory = useCallback(
+    () => dispatch({ type: "CLEAR_MOOD_HISTORY" }),
+    [],
+  );
+
   const value = useMemo(
     () => ({
      
@@ -402,6 +479,9 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({
       addPhq9Assessment,
       setOnboarded,
       giveConsent,
+      setProfileName,
+      setDailyRemindersEnabled,
+      setPreferredCheckInTime,
       setSensorEnabled,
       setBackgroundLocationEnabled,
       setBackgroundSensorsEnabled,
@@ -410,7 +490,8 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({
       setLocationReading,
       setAccelerometerReading,
       setMicrophoneReading,
-     
+      clearMoodHistory,
+      
       reset,
     }),
     [state, isRestored],

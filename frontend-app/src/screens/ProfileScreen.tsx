@@ -420,9 +420,14 @@ const ProfileScreen: React.FC<BottomTabScreenProps<"Profile">> = ({
         <Text style={globalStyles.sectionHeader}>Privacy & Data</Text>
         <SwitchRow
           title="Location (GPS)"
-          subtitle="Allow location tracking while using the app"
+          subtitle={
+            state.sensors.backgroundLocationEnabled
+              ? "Handled by background service"
+              : "Allow location tracking while using the app"
+          }
           value={state.sensors.enabled.location}
           onValueChange={(val) => setSensorEnabled("location", val)}
+          disabled={state.sensors.backgroundLocationEnabled}
         />
         <SwitchRow
           title="Background Location"
@@ -432,15 +437,25 @@ const ProfileScreen: React.FC<BottomTabScreenProps<"Profile">> = ({
         />
         <SwitchRow
           title="Accelerometer"
-          subtitle="Allow motion sensing while using the app"
+          subtitle={
+            state.sensors.backgroundSensorsEnabled
+              ? "Handled by background service"
+              : "Allow motion sensing while using the app"
+          }
           value={state.sensors.enabled.accelerometer}
           onValueChange={(val) => setSensorEnabled("accelerometer", val)}
+          disabled={state.sensors.backgroundSensorsEnabled}
         />
         <SwitchRow
           title="Microphone"
-          subtitle="Allow sound level metering while using the app"
+          subtitle={
+            state.sensors.backgroundSensorsEnabled
+              ? "Handled by background service"
+              : "Allow sound level metering while using the app"
+          }
           value={state.sensors.enabled.microphone}
           onValueChange={(val) => setSensorEnabled("microphone", val)}
+          disabled={state.sensors.backgroundSensorsEnabled}
         />
         <SwitchRow
           title="Background Sensors"
@@ -486,7 +501,10 @@ const ProfileScreen: React.FC<BottomTabScreenProps<"Profile">> = ({
               {
                 text: "Log Out",
                 style: "destructive",
-                onPress: () => signOut(),
+                onPress: async () => {
+                  await signOut();
+                  reset();
+                },
               },
             ]);
           }}

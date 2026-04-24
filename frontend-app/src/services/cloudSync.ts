@@ -14,7 +14,7 @@ import {
   writeBatch,
 } from "@react-native-firebase/firestore";
 import type { FirebaseFirestoreTypes } from "@react-native-firebase/firestore";
-import type { MoodEntry, Phq9Assessment } from "../types/models";
+import type { MoodEntry, Phq9Assessment, NotificationResponse } from "../types/models";
 import type {
   AccelerometerReading,
   LocationReading,
@@ -136,6 +136,41 @@ export async function loadCloudProfile(
   }
 }
 
+export async function syncNotificationResponse(
+  userId: string,
+  response: NotificationResponse,
+): Promise<void> {
+  try {
+    const ref = doc(
+      collection(getFirestore(), "users", userId, "notification_responses"),
+      response.id,
+    );
+    await setDoc(ref, {
+      ...response,
+      syncedAt: serverTimestamp(),
+    });
+  } catch (e) {
+    console.error("[cloudSync] syncNotificationResponse failed:", e);
+  }
+}
+
+export async function loadCloudNotificationResponses(
+  userId: string,
+): Promise<NotificationResponse[]> {
+  try {
+    const col = collection(getFirestore(), "users", userId, "notification_responses");
+    const q = query(col, orderBy("timestamp", "desc"), limit(100));
+    const snapshot = await getDocs(q);
+    return snapshot.docs.map(
+      (docSnap: FirebaseFirestoreTypes.QueryDocumentSnapshot) =>
+        docSnap.data() as NotificationResponse,
+    );
+  } catch (e) {
+    console.error("[cloudSync] loadCloudNotificationResponses failed:", e);
+    return [];
+  }
+}
+
 export async function loadAllCloudData(userId: string): Promise<{
   history: MoodEntry[];
   phq9History: Phq9Assessment[];
@@ -158,7 +193,7 @@ const DELETE_BATCH_SIZE = 400;
 
 async function deleteUserCollection(
   userId: string,
-  collectionName: "mood_entries" | "phq9_assessments" | "sensor_buckets",
+  collectionName: "mood_entries" | "phq9_assessments" | "sensor_buckets" | "notification_responses",
 ): Promise<void> {
   while (true) {
     const snapshot = await getDocs(
@@ -193,6 +228,7 @@ export async function deleteUserAccountData(userId: string): Promise<void> {
   await deleteUserCollection(userId, "mood_entries");
   await deleteUserCollection(userId, "phq9_assessments");
   await deleteUserCollection(userId, "sensor_buckets");
+  await deleteUserCollection(userId, "notification_responses");
   await deleteDoc(userDocRef(userId));
 }
 

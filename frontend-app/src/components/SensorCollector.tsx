@@ -8,9 +8,9 @@ import { useMicrophoneSampling } from "../hooks/useMicrophoneSampling";
 import { getCurrentUser } from "../services/auth";
 import { useStore } from "../store";
 import {
-  loadLastAccelerometerReading,
-  loadLastLocationReading,
-  loadLastMicrophoneReading,
+  loadAccelerometerReadings,
+  loadLocationReadings,
+  loadMicrophoneReadings,
 } from "../utilities/sensorStorage";
 
 const BG_POLL_INTERVAL_MS = 5000;
@@ -28,6 +28,7 @@ function useBackgroundDataBridge(active: boolean) {
   } = useStore();
 
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const lastSyncRef = useRef({ location: 0, accel: 0, mic: 0 });
 
   useEffect(() => {
     if (!active) {
@@ -39,14 +40,28 @@ function useBackgroundDataBridge(active: boolean) {
     }
 
     async function poll() {
-      const [loc, accel, mic] = await Promise.all([
-        loadLastLocationReading(),
-        loadLastAccelerometerReading(),
-        loadLastMicrophoneReading(),
+      const [locList, accelList, micList] = await Promise.all([
+        loadLocationReadings(),
+        loadAccelerometerReadings(),
+        loadMicrophoneReadings(),
       ]);
-      if (loc) setLocationReading(loc);
-      if (accel) setAccelerometerReading(accel);
-      if (mic) setMicrophoneReading(mic);
+
+      const processList = <T extends { timestamp: number }>(
+        list: T[],
+        lastSync: number,
+        setter: (item: T) => void
+      ): number => {
+        const newItems = list.filter((r) => r.timestamp > lastSync);
+        if (newItems.length > 0) {
+          newItems.sort((a, b) => a.timestamp - b.timestamp).forEach(setter);
+          return Math.max(...newItems.map((r) => r.timestamp));
+        }
+        return lastSync;
+      };
+
+      lastSyncRef.current.location = processList(locList, lastSyncRef.current.location, setLocationReading);
+      lastSyncRef.current.accel = processList(accelList, lastSyncRef.current.accel, setAccelerometerReading);
+      lastSyncRef.current.mic = processList(micList, lastSyncRef.current.mic, setMicrophoneReading);
     }
 
     // Initial poll, then repeat.

@@ -2,6 +2,8 @@ import { registerRootComponent } from "expo";
 import notifee, { EventType } from "@notifee/react-native";
 import { saveNotificationResponse } from "./src/utilities/notificationStorage";
 import { parseNotificationAction } from "./src/utilities/parseNotificationAction";
+import { syncNotificationResponse } from "./src/services/cloudSync";
+import { getCurrentUser } from "./src/services/auth";
 import "./src/services/sensors/backgroundLocationTask";
 import "./src/services/sensors/sensorForegroundService";
 import App from "./App";
@@ -15,6 +17,10 @@ notifee.onBackgroundEvent(async ({ type, detail }) => {
   if (!response) return;
 
   await saveNotificationResponse(response);
+  const user = getCurrentUser();
+  if (user) {
+    await syncNotificationResponse(user.uid, response);
+  }
 
   if (detail.notification?.id) {
     await notifee.cancelNotification(detail.notification.id);

@@ -1,14 +1,35 @@
-node_modules
-android
-ios
-.expo
-dist
-web-build
-*.p12
-*.jks
-*.keystore
-.env*
-google-services.json
-**/node_modules
-**/android
-**/ios
+# Local Android/iOS builds — EAS rebuilds these
+android/
+ios/
+
+# Node modules native build artifacts
+node_modules/**/android/build/
+node_modules/**/android/.cxx/
+node_modules/**/.cxx/
+
+# Expo cache
+.expo/
+
+# Build output
+dist/
+build/
+
+# Docs and scripts
+docs/
+scripts/
+plugins/
+
+# Hermes binaries for other platforms (you're building Android, don't need osx/win hermesc)
+node_modules/react-native/sdks/hermesc/osx-bin/
+node_modules/react-native/sdks/hermesc/win64-bin/
+
+# Firebase source maps (massive, not needed)
+node_modules/firebase/*.map
+node_modules/firebase/**/*.map
+
+# TypeScript compiler (not needed at build time)
+node_modules/typescript/
+
+# Misc
+*.log
+.DS_Store

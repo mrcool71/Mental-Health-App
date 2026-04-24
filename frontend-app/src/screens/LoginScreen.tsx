@@ -14,15 +14,22 @@ import styles from "../styles/login.styles";
 const LoginScreen: React.FC = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [isSignUp, setIsSignUp] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const canSubmit = email.trim().length > 0 && password.length >= 6;
+  const canSubmit = email.trim().length > 0 && password.length >= 6 && (!isSignUp || confirmPassword.length >= 6);
 
   const handleSubmit = async () => {
     if (!canSubmit || loading) return;
     setError(null);
+
+    if (isSignUp && password !== confirmPassword) {
+      setError("Passwords do not match.");
+      return;
+    }
+
     setLoading(true);
 
     try {
@@ -96,6 +103,20 @@ const LoginScreen: React.FC = () => {
         accessibilityLabel="Password"
       />
 
+      {isSignUp ? (
+        <TextInput
+          style={styles.input}
+          placeholder="Confirm Password"
+          placeholderTextColor="#8A9E9B"
+          value={confirmPassword}
+          onChangeText={setConfirmPassword}
+          secureTextEntry
+          textContentType="newPassword"
+          autoComplete="new-password"
+          accessibilityLabel="Confirm Password"
+        />
+      ) : null}
+
       {error ? <Text style={styles.errorText}>{error}</Text> : null}
 
       <TouchableOpacity
@@ -123,6 +144,7 @@ const LoginScreen: React.FC = () => {
           onPress={() => {
             setIsSignUp(!isSignUp);
             setError(null);
+            setConfirmPassword("");
           }}
           accessibilityRole="button"
         >
